@@ -30,22 +30,26 @@
   ],
   "type": "module",
   "devDependencies": {
-    "@arethetypeswrong/cli": "^0.15.4",
-    "@changesets/cli": "^2.27.7",
-    "prettier": "^3.3.3",
-    "tsup": "^8.2.4",
-    "typescript": "^5.5.4",
-    "vitest": "^2.0.5"
+    "@arethetypeswrong/cli": "^0.17.1",
+    "@changesets/cli": "^2.27.11",
+    "prettier": "^3.4.2",
+    "prettier-plugin-organize-imports": "^4.1.0",
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
   },
   "scripts": {
     "build": "tsup",
-    "ci": "npm run build && npm run check-format && npm run check-exports && npm run lint && npm run test",
+    "ci": "pnpm run build && pnpm run check-format && pnpm run check-exports && pnpm run lint && pnpm run test",
     "lint": "tsc",
     "test": "vitest run",
     "format": "prettier --write .",
     "check-format": "prettier --check .",
     "check-exports": "attw --pack .",
-    "local-release": "npm run ci && changeset version && changeset publish"
+    "local-release": "pnpm install --frozen-lockfile && changeset version && changeset publish"
   },
-  "packageManager": "pnpm@9.15.0"
+  "packageManager": "pnpm@9.15.0",
+  "dependencies": {
+    "iso-639-3": "^3.0.1"
+  }
 }
