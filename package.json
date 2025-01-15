@@ -1,12 +1,17 @@
 {
   "name": "ochre-sdk",
-  "version": "0.1.1",
-  "description": "SDK for OCHRE",
+  "version": "0.1.0",
+  "description": "TypeScript SDK for working with OCHRE (Online Cultural and Historical Research Environment) data",
   "keywords": [
     "ochre",
     "uchicago",
     "digital-culture",
-    "digital-humanities"
+    "digital-humanities",
+    "typescript",
+    "sdk",
+    "parser",
+    "cultural-heritage",
+    "research"
   ],
   "main": "dist/index.js",
   "exports": {
@@ -15,6 +20,7 @@
       "require": "./dist/index.cjs"
     }
   },
+  "types": "./dist/types/index.d.ts",
   "homepage": "https://github.com/UChicago-Forum-for-Digital-Culture/ochre-sdk",
   "bugs": {
     "url": "https://github.com/UChicago-Forum-for-Digital-Culture/ochre-sdk/issues"
@@ -50,6 +56,8 @@
   },
   "packageManager": "pnpm@9.15.0",
   "dependencies": {
-    "iso-639-3": "^3.0.1"
+    "@types/node": "^22.10.2",
+    "iso-639-3": "^3.0.1",
+    "zod": "^3.24.1"
   }
 }

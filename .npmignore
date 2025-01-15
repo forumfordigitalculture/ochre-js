@@ -1,0 +1,9 @@
+.github/
+.changeset/
+src/*.test.ts
+docs/
+tsconfig.json
+tsup.config.ts
+prettier.config.js
+.gitignore
+CONTRIBUTING.md

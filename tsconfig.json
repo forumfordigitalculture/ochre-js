@@ -16,6 +16,12 @@
     /* If transpiling with TypeScript: */
     "module": "NodeNext",
     "lib": ["es2023"],
-    "noEmit": true
-  }
+    "noEmit": true,
+    "declaration": true,
+    "declarationDir": "./dist/types"
+  },
+  "include": ["src/**/*.ts", "src/**/*.d.ts"],
+  "exclude": [
+    "src/types/internal.raw.d.ts" // Exclude the raw types from declaration outputs
+  ]
 }
