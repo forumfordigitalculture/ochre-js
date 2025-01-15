@@ -1,7 +1,7 @@
 {
-  "name": "ochre-sdk",
+  "name": "@the-forum/ochre-node",
   "version": "0.1.0",
-  "description": "TypeScript SDK for working with OCHRE (Online Cultural and Historical Research Environment) data",
+  "description": "Node.js library for working with OCHRE (Online Cultural and Historical Research Environment) data",
   "keywords": [
     "ochre",
     "uchicago",
