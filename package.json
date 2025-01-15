@@ -1,5 +1,5 @@
 {
-  "name": "@the-forum/ochre-node",
+  "name": "@digitalculture/ochre-node",
   "version": "0.1.0",
   "description": "Node.js library for working with OCHRE (Online Cultural and Historical Research Environment) data",
   "keywords": [
@@ -21,14 +21,14 @@
     }
   },
   "types": "./dist/types/index.d.ts",
-  "homepage": "https://github.com/UChicago-Forum-for-Digital-Culture/ochre-sdk",
+  "homepage": "https://github.com/UChicago-Forum-for-Digital-Culture/ochre-node",
   "bugs": {
-    "url": "https://github.com/UChicago-Forum-for-Digital-Culture/ochre-sdk/issues"
+    "url": "https://github.com/UChicago-Forum-for-Digital-Culture/ochre-node/issues"
   },
   "author": "Firat Ciftci <firatciftci@uchicago.edu> (https://digitalculture.uchicago.edu)",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/UChicago-Forum-for-Digital-Culture/ochre-sdk.git"
+    "url": "git+https://github.com/UChicago-Forum-for-Digital-Culture/ochre-node.git"
   },
   "license": "MIT",
   "files": [
