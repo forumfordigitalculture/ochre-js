@@ -1,4 +1,4 @@
-import type { Property } from "../types/main.d.ts";
+import type { Property } from "../types/main.js";
 
 type PropertyOptions = {
   searchNestedProperties: boolean;
@@ -8,13 +8,6 @@ const DEFAULT_OPTIONS: PropertyOptions = {
   searchNestedProperties: false,
 };
 
-/**
- * Finds a property in an array of properties by its label
- * @param properties - Array of properties to search through
- * @param label - Label to search for
- * @param options - Search options (default: { searchNestedProperties: false })
- * @returns Matching Property object or null if not found
- */
 export function getPropertyByLabel(
   properties: Array<Property>,
   label: string,
@@ -42,13 +35,6 @@ export function getPropertyByLabel(
   return null;
 }
 
-/**
- * Gets all values from a property matching the given label
- * @param properties - Array of properties to search through
- * @param label - Label to search for
- * @param options - Search options (default: { searchNestedProperties: false })
- * @returns Array of property values as strings, or null if not found
- */
 export function getPropertyValuesByLabel(
   properties: Array<Property>,
   label: string,
@@ -79,13 +65,6 @@ export function getPropertyValuesByLabel(
   return null;
 }
 
-/**
- * Gets the first value from a property matching the given label
- * @param properties - Array of properties to search through
- * @param label - Label to search for
- * @param options - Search options (default: { searchNestedProperties: false })
- * @returns First property value as string, or null if not found
- */
 export function getPropertyValueByLabel(
   properties: Array<Property>,
   label: string,
@@ -107,7 +86,7 @@ export function getPropertyValueByLabel(
           label,
           { searchNestedProperties },
         );
-        if (nestedResult) {
+        if (nestedResult !== null) {
           return nestedResult;
         }
       }

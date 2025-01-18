@@ -1,80 +1,10 @@
-export type {
-  Bibliography,
-  Concept,
-  Context,
-  ContextItem,
-  ContextNode,
-  Coordinates,
-  Data,
-  Document,
-  Event,
-  Footnote,
-  Identification,
-  Image,
-  ImageMap,
-  ImageMapArea,
-  Interpretation,
-  License,
-  Link,
-  Metadata,
-  NestedConcept,
-  NestedResource,
-  NestedSpatialUnit,
-  Note,
-  Observation,
-  Period,
-  Person,
-  Property,
-  PropertyValue,
-  PropertyValueType,
-  Resource,
-  Set,
-  SpatialUnit,
-  Style,
-  Tree,
-  WebElement,
-  WebElementComponent,
-  WebImage,
-  Webpage,
-  WebpageProperties,
-  Website,
-  WebsiteProperties,
-} from "./types/main.d.ts";
-
-export {
-  fetchBibliography,
-  fetchByUuid,
-  fetchConcept,
-  fetchResource,
-  fetchSet,
-  fetchSpatialUnit,
-  fetchTree,
-  fetchWebsite,
-} from "./utils/fetchers.js";
-
-export {
-  getPropertyByLabel,
-  getPropertyValueByLabel,
-  getPropertyValuesByLabel,
-} from "./utils/getters.js";
-
-export {
-  parseEmailAndUrl,
-  parseFakeString,
-  parseStringContent,
-  parseStringDocumentItem,
-  parseStringItem,
-} from "./utils/string.js";
-
-export {
-  parseBibliography,
-  parseConcept,
-  parseIdentification,
-  parseMetadata,
-  parseResource,
-  parseResources,
-  parseSet,
-  parseSpatialUnit,
-  parseTree,
-  parseWebsite,
-} from "./utils/parsers.js";
+export * from "./utils/fetchers/concept.js";
+export * from "./utils/fetchers/generic.js";
+export * from "./utils/fetchers/resource.js";
+export * from "./utils/fetchers/set.js";
+export * from "./utils/fetchers/spatial-unit.js";
+export * from "./utils/fetchers/tree.js";
+export * from "./utils/fetchers/website.js";
+export * from "./utils/getters.js";
+export * from "./utils/parse.js";
+export * from "./utils/string.js";

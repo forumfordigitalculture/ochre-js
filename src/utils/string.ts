@@ -1,4 +1,3 @@
-import { z } from "zod";
 import type {
   FakeString,
   OchreStringContent,
@@ -6,21 +5,9 @@ import type {
   OchreStringRichTextItem,
   RenderOption,
   WhitespaceOption,
-} from "../types/internal.raw.d.ts";
-import type { Footnote } from "../types/main.d.ts";
-
-/**
- * Validates if a string is a valid URL
- * @param url - String to validate as URL
- * @returns Boolean indicating if string is valid URL
- */
-function isUrlValid(url: string) {
-  const pattern = new RegExp(
-    /((([A-Za-z]{3,9}:(?:\/\/)?)(?:[\w$&+,:;=-]+@)?[\d.A-Za-z-]+(:\d+)?|(?:www.|[\w$&+,:;=-]+@)[\d.A-Za-z-]+)((?:\/[%+./~\w-_]*)?\??[\w%&+.;=@-]*#?\w*)?)/,
-  );
-
-  return !!pattern.test(url);
-}
+} from "../types/internal.raw.js";
+import type { Footnote } from "../types/main.js";
+import { z } from "zod";
 
 const renderOptionsSchema = z
   .string()
@@ -51,12 +38,14 @@ const urlSchema = z.string().refine((v) => (v ? isUrlValid(v) : false), {
   message: "Invalid URL",
 });
 
-/**
- * Gets a string item from an array of items matching the specified language
- * @param content - Array of string items to search
- * @param language - Language code to match
- * @returns Matching string item or null if not found
- */
+function isUrlValid(url: string) {
+  const pattern =
+    // eslint-disable-next-line regexp/no-useless-quantifier, regexp/no-unused-capturing-group
+    /((([A-Za-z]{3,9}:(?:\/\/)?)(?:[\w$&+,:;=-]+@)?[\d.A-Za-z-]+(:\d+)?|(?:www.|[\w$&+,:;=-]+@)[\d.A-Za-z-]+)((?:\/[%+./~\w-]*)?\??[\w%&+.;=@-]*#?\w*)?)/;
+
+  return !!pattern.test(url);
+}
+
 function getStringItemByLanguage(
   content: Array<OchreStringItem>,
   language: string,
@@ -70,11 +59,6 @@ function getStringItemByLanguage(
   }
 }
 
-/**
- * Parses a string and wraps any emails or URLs in ExternalLink components
- * @param string - String to parse
- * @returns String with wrapped email and URL links
- */
 export function parseEmailAndUrl(string: string): string {
   const splitString = string.split(" ");
   const returnSplitString: Array<string> = [];
@@ -112,12 +96,6 @@ export function parseEmailAndUrl(string: string): string {
   return returnSplitString.join(" ");
 }
 
-/**
- * Applies render options (bold, italic, underline) to a string
- * @param contentString - String to apply rendering to
- * @param renderString - Space-separated string of render options
- * @returns Rendered string with markdown formatting
- */
 function parseRenderOptions(
   contentString: string,
   renderString: string,
@@ -151,12 +129,6 @@ function parseRenderOptions(
   return returnString.replaceAll("&#39;", "'");
 }
 
-/**
- * Applies whitespace options (newline, trailing, leading) to a string
- * @param contentString - String to apply whitespace to
- * @param whitespace - Space-separated string of whitespace options
- * @returns String with applied whitespace
- */
 function parseWhitespace(contentString: string, whitespace: string): string {
   let returnString = contentString;
 
@@ -188,11 +160,6 @@ function parseWhitespace(contentString: string, whitespace: string): string {
   return returnString.replaceAll("&#39;", "'");
 }
 
-/**
- * Converts various primitive types to strings
- * @param string - Value to convert (string, number, or boolean)
- * @returns Converted string value
- */
 export function parseFakeString(string: FakeString): string {
   let returnString = "";
 
@@ -207,11 +174,6 @@ export function parseFakeString(string: FakeString): string {
   return returnString.replaceAll("&#39;", "'");
 }
 
-/**
- * Parses an OCHRE string item into a formatted string
- * @param item - OCHRE string item to parse
- * @returns Parsed and formatted string
- */
 export function parseStringItem(item: OchreStringItem): string {
   let returnString = "";
 
@@ -231,7 +193,7 @@ export function parseStringItem(item: OchreStringItem): string {
 
       for (const stringItem of stringItems) {
         const renderedText =
-          stringItem.rend ?
+          stringItem.rend != null ?
             parseRenderOptions(
               parseFakeString(stringItem.content),
               stringItem.rend,
@@ -239,7 +201,7 @@ export function parseStringItem(item: OchreStringItem): string {
           : parseFakeString(stringItem.content);
 
         const whitespacedText =
-          stringItem.whitespace ?
+          stringItem.whitespace != null ?
             parseWhitespace(renderedText, stringItem.whitespace)
           : renderedText;
 
@@ -256,12 +218,6 @@ export function parseStringItem(item: OchreStringItem): string {
   return returnString.replaceAll("&#39;", "'");
 }
 
-/**
- * Parses OCHRE string content into a formatted string
- * @param content - OCHRE string content to parse
- * @param language - Language code to use (defaults to 'eng')
- * @returns Parsed and formatted string
- */
 export function parseStringContent(
   content: OchreStringContent,
   language = "eng",
@@ -294,15 +250,12 @@ export function parseStringContent(
         return parseStringItem(content.content);
       }
     }
+    default: {
+      return String(content.content);
+    }
   }
 }
 
-/**
- * Parses an OCHRE rich text item into a formatted string with components
- * @param item - OCHRE rich text item to parse
- * @param footnotes - Optional array to collect footnotes
- * @returns Parsed string with markdown and component formatting
- */
 export function parseStringDocumentItem(
   item: OchreStringRichTextItem,
   footnotes?: Array<Footnote>,
@@ -336,7 +289,7 @@ export function parseStringDocumentItem(
           Array.isArray(link.resource) ? link.resource[0]! : link.resource;
 
         let linkContent: string | null = null;
-        if (linkResource.content) {
+        if (linkResource.content != null) {
           linkContent = parseFakeString(linkResource.content)
             .replaceAll("<", String.raw`\<`)
             .replaceAll("{", String.raw`\{`);
@@ -346,15 +299,15 @@ export function parseStringDocumentItem(
           case "image": {
             if (linkResource.rend === "inline") {
               return `<InlineImage uuid="${linkResource.uuid}" ${
-                linkContent ? `content="${linkContent}"` : ""
+                linkContent !== null ? `content="${linkContent}"` : ""
               } height={${linkResource.height?.toString() ?? "null"}} width={${linkResource.width?.toString() ?? "null"}} />`;
-            } else if (linkResource.publicationDateTime) {
+            } else if (linkResource.publicationDateTime != null) {
               return `<ExternalLink href="https:\\/\\/ochre.lib.uchicago.edu/ochre?uuid=${linkResource.uuid}" type="image"${
-                linkContent ? ` content="${linkContent}"` : ""
+                linkContent !== null ? ` content="${linkContent}"` : ""
               }>${itemString}</ExternalLink>`;
             } else {
               return `<TooltipSpan type="image" ${
-                linkContent ? `content="${linkContent}"` : ""
+                linkContent !== null ? `content="${linkContent}"` : ""
               }>${itemString}</TooltipSpan>`;
             }
           }
@@ -374,30 +327,33 @@ export function parseStringDocumentItem(
 
               return ` <Footnote uuid="${linkResource.uuid}"${
                 itemString ? ` label="${itemString}"` : ""
-              }${linkContent ? ` content="${linkContent}"` : ""} />`;
+              }${linkContent !== null ? ` content="${linkContent}"` : ""} />`;
             } else {
               return `<ExternalLink href="https:\\/\\/ochre.lib.uchicago.edu/ochre?uuid=${linkResource.uuid}" type="internalDocument" ${
-                linkContent ? `content="${linkContent}"` : ""
+                linkContent !== null ? `content="${linkContent}"` : ""
               }>${itemString}</ExternalLink>`;
             }
           }
           case "externalDocument": {
-            if (linkResource.publicationDateTime) {
+            if (linkResource.publicationDateTime != null) {
               return `<ExternalLink href="https:\\/\\/ochre.lib.uchicago.edu/ochre?uuid=${linkResource.uuid}" type="externalDocument" ${
-                linkContent ? `content="${linkContent}"` : ""
+                linkContent !== null ? `content="${linkContent}"` : ""
               }>${itemString}</ExternalLink>`;
             } else {
               return `<TooltipSpan type="externalDocument" ${
-                linkContent ? `content="${linkContent}"` : ""
+                linkContent !== null ? `content="${linkContent}"` : ""
               }>${itemString}</TooltipSpan>`;
             }
+          }
+          default: {
+            return "";
           }
         }
       } else if ("concept" in link) {
         const linkConcept =
           Array.isArray(link.concept) ? link.concept[0]! : link.concept;
 
-        if (linkConcept.publicationDateTime) {
+        if (linkConcept.publicationDateTime != null) {
           return `<ExternalLink href="https:\\/\\/ochre.lib.uchicago.edu/ochre?uuid=${linkConcept.uuid}" type="concept">${itemString}</ExternalLink>`;
         } else {
           return `<TooltipSpan type="concept">${itemString}</TooltipSpan>`;
@@ -405,7 +361,7 @@ export function parseStringDocumentItem(
       } else if ("set" in link) {
         const linkSet = Array.isArray(link.set) ? link.set[0]! : link.set;
 
-        if (linkSet.publicationDateTime) {
+        if (linkSet.publicationDateTime != null) {
           return `<ExternalLink href="https:\\/\\/ochre.lib.uchicago.edu/ochre?uuid=${linkSet.uuid}" type="set">${itemString}</ExternalLink>`;
         } else {
           return `<TooltipSpan type="set">${itemString}</TooltipSpan>`;
@@ -419,13 +375,13 @@ export function parseStringDocumentItem(
             parseStringContent(linkPerson.identification.label)
           : null;
 
-        if (linkPerson.publicationDateTime) {
+        if (linkPerson.publicationDateTime != null) {
           return `<ExternalLink href="https:\\/\\/ochre.lib.uchicago.edu/ochre?uuid=${linkPerson.uuid}" type="${linkPerson.type ?? "person"}" ${
-            linkContent ? `content="${linkContent}"` : ""
+            linkContent !== null ? `content="${linkContent}"` : ""
           }>${itemString}</ExternalLink>`;
         } else {
           return `<TooltipSpan type="${linkPerson.type ?? "person"}" ${
-            linkContent ? `content="${linkContent}"` : ""
+            linkContent !== null ? `content="${linkContent}"` : ""
           }>${itemString}</TooltipSpan>`;
         }
       } else if ("bibliography" in link) {
@@ -434,8 +390,8 @@ export function parseStringDocumentItem(
             link.bibliography[0]!
           : link.bibliography;
 
-        if (linkBibliography.publicationDateTime) {
-          return `<ExternalLink href="https:\\/\\/ochre.lib.uchicago.edu/ochre?uuid=${linkBibliography.uuid}" type="${linkBibliography.type || "bibliography"}">${itemString}</ExternalLink>`;
+        if (linkBibliography.publicationDateTime != null) {
+          return `<ExternalLink href="https:\\/\\/ochre.lib.uchicago.edu/ochre?uuid=${linkBibliography.uuid}" type="${linkBibliography.type ?? "bibliography"}">${itemString}</ExternalLink>`;
         } else {
           return `<TooltipSpan type="bibliography">${itemString}</TooltipSpan>`;
         }
@@ -453,7 +409,7 @@ export function parseStringDocumentItem(
       returnString += parseStringDocumentItem(stringItem, footnotes);
     }
 
-    if ("whitespace" in item && item.whitespace) {
+    if ("whitespace" in item && item.whitespace != null) {
       returnString = parseWhitespace(
         parseEmailAndUrl(returnString),
         item.whitespace,
@@ -464,14 +420,14 @@ export function parseStringDocumentItem(
   } else {
     returnString = parseFakeString(item.content);
 
-    if (item.rend) {
+    if (item.rend != null) {
       returnString = parseRenderOptions(
         parseEmailAndUrl(returnString),
         item.rend,
       );
     }
 
-    if (item.whitespace) {
+    if (item.whitespace != null) {
       returnString = parseWhitespace(
         parseEmailAndUrl(returnString),
         item.whitespace,
@@ -480,4 +436,17 @@ export function parseStringDocumentItem(
   }
 
   return returnString.replaceAll("&#39;", "'");
+}
+
+export function trimEndLineBreaks(string: string): string {
+  // trim "\n<br" from the end of the string
+  const trimmedString = string.replaceAll(/^\n<br \/>|\n<br \/>$/g, "");
+
+  // check if there are other final line breaks
+  const finalLineBreaks = /\n<br \/>$/.exec(trimmedString);
+  if (finalLineBreaks) {
+    return trimEndLineBreaks(trimmedString);
+  }
+
+  return trimmedString;
 }

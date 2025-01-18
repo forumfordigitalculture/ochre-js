@@ -1,66 +1,41 @@
-/**
- * Primitive types that can be treated as strings
- */
+import type { Language } from "iso-639-3";
+
 export type FakeString = string | number | boolean;
 
-/**
- * Text rendering options
- */
 export type RenderOption = "bold" | "italic" | "underline";
 
-/**
- * Whitespace handling options
- */
 export type WhitespaceOption = "newline" | "trailing" | "leading";
 
-/**
- * Content item with rendering and whitespace options
- */
 export type OchreStringItemContent = {
   rend?: string; // "bold" | "italic" | "underline" (space separated)
   whitespace?: string; // "newline" | "trailing" | "leading" (space separated)
   content: FakeString;
 };
 
-/**
- * String item with language information
- */
 export type OchreStringItem = {
   string: FakeString | OchreStringItemContent | Array<OchreStringItemContent>;
-  lang?: string; // 3 character code (zxx = "a.k.a.")
+  lang?: Language["iso6393"]; // 3 character code (zxx = "a.k.a.")
   languages?: string; // 3 character codes, semicolon separated
 };
 
-/**
- * Container for string content
- */
 export type OchreStringContent = {
   content: FakeString | OchreStringItem | Array<OchreStringItem>;
 };
 
-/**
- * Rich text content item with formatting options
- */
 export type OchreStringRichTextItemContent = {
   content: FakeString;
   title?: FakeString;
-  lang?: string; // 3 character code (zxx = "a.k.a.")
+  lang?: Language["iso6393"]; // 3 character code (zxx = "a.k.a.")
   whitespace?: string; // "newline" | "trailing" | "leading" (space separated)
   rend?: string; // "bold" | "italic" | "underline"  (space separated)
 };
 
-/**
- * Annotation within rich text
- */
 export type OchreStringRichTextItemAnnotation = {
   annotation: string; // UUID
   string: FakeString;
   links: OchreLink | Array<OchreLink>;
 };
 
-/**
- * Rich text item with various formatting options
- */
 export type OchreStringRichTextItem =
   | FakeString
   | OchreStringRichTextItemContent
@@ -75,18 +50,12 @@ export type OchreStringRichTextItem =
     }
   | OchreStringRichTextItemAnnotation;
 
-/**
- * Rich text with language information
- */
 export type OchreStringRichText = {
   string: FakeString | OchreStringRichTextItem | Array<OchreStringRichTextItem>;
   title?: FakeString;
-  lang?: string; // 3 character code (zxx = "a.k.a.")
+  lang?: Language["iso6393"]; // 3 character code (zxx = "a.k.a.")
 };
 
-/**
- * Raw OCHRE data response
- */
 export type OchreData = {
   ochre: {
     uuid: string;
@@ -105,9 +74,6 @@ export type OchreData = {
   );
 };
 
-/**
- * Raw OCHRE metadata
- */
 export type OchreMetadata = {
   identifier: OchreStringContent;
   item?: {
@@ -125,9 +91,6 @@ export type OchreMetadata = {
   description: OchreStringContent;
 };
 
-/**
- * Raw OCHRE tree structure
- */
 export type OchreTree = {
   uuid: string;
   publicationDateTime: string; // YYYY-MM-DDThh:mm:ssZ
@@ -146,9 +109,6 @@ export type OchreTree = {
   properties?: { property: OchreProperty | Array<OchreProperty> };
 };
 
-/**
- * Raw OCHRE set
- */
 export type OchreSet = {
   uuid: string;
   publicationDateTime: string; // YYYY-MM-DDThh:mm:ssZ
@@ -166,9 +126,6 @@ export type OchreSet = {
     | { concept: OchreConcept | Array<OchreConcept> };
 };
 
-/**
- * Raw OCHRE resource
- */
 export type OchreResource = {
   uuid: string;
   publicationDateTime: string; // YYYY-MM-DDThh:mm:ssZ
@@ -200,17 +157,11 @@ export type OchreResource = {
   resource?: OchreNestedResource | Array<OchreNestedResource>;
 };
 
-/**
- * Raw OCHRE nested resource without context and availability
- */
 export type OchreNestedResource = Omit<
   OchreResource,
   "context" | "availability" | "copyright"
 >;
 
-/**
- * Raw OCHRE spatial unit
- */
 export type OchreSpatialUnit = {
   uuid: string;
   publicationDateTime?: string; // YYYY-MM-DDThh:mm:ssZ
@@ -227,9 +178,6 @@ export type OchreSpatialUnit = {
   observation?: OchreObservation;
 };
 
-/**
- * Raw OCHRE nested spatial unit without context and observations
- */
 export type OchreNestedSpatialUnit = Omit<
   OchreSpatialUnit,
   "context" | "availability" | "observations" | "events"
@@ -237,9 +185,6 @@ export type OchreNestedSpatialUnit = Omit<
   properties?: { property: OchreProperty | Array<OchreProperty> };
 };
 
-/**
- * Raw OCHRE concept
- */
 export type OchreConcept = {
   uuid: string;
   publicationDateTime: string; // YYYY-MM-DDThh:mm:ssZ
@@ -252,14 +197,8 @@ export type OchreConcept = {
   };
 };
 
-/**
- * Raw OCHRE nested concept without context and availability
- */
 export type OchreNestedConcept = Omit<OchreConcept, "context" | "availability">;
 
-/**
- * Raw OCHRE property value
- */
 export type OchrePropertyValue = OchreStringContent & {
   uuid?: string;
   publicationDateTime?: string; // YYYY-MM-DDThh:mm:ssZ
@@ -267,9 +206,6 @@ export type OchrePropertyValue = OchreStringContent & {
   category?: string;
 };
 
-/**
- * Raw OCHRE property
- */
 export type OchreProperty = {
   label: OchreStringContent & { uuid: string };
   value?: OchrePropertyValue | Array<OchrePropertyValue>;
@@ -277,9 +213,6 @@ export type OchreProperty = {
   property?: OchreProperty | Array<OchreProperty>;
 };
 
-/**
- * Raw OCHRE identification
- */
 export type OchreIdentification = {
   label: OchreStringContent;
   abbreviation?: OchreStringContent;
@@ -291,24 +224,15 @@ export type OchreIdentification = {
   website?: string;
 };
 
-/**
- * Raw OCHRE license
- */
 export type OchreLicense = {
   license: { content: string; target: string } | string;
 };
 
-/**
- * Raw OCHRE language
- */
 export type OchreLanguage = {
   default?: boolean;
   content: string; // 3 character code
 };
 
-/**
- * Raw OCHRE link item
- */
 export type OchreLinkItem = {
   uuid: string;
   publicationDateTime?: string; // YYYY-MM-DDThh:mm:ssZ
@@ -322,20 +246,15 @@ export type OchreLinkItem = {
   width?: number;
 };
 
-/**
- * Raw OCHRE link variants
- */
 export type OchreLink =
   | { resource: OchreLinkItem | Array<OchreLinkItem> }
   | { concept: OchreLinkItem | Array<OchreLinkItem> }
   | { set: OchreLinkItem | Array<OchreLinkItem> }
+  | { tree: OchreLinkItem | Array<OchreLinkItem> }
   | { person: OchreLinkItem | Array<OchreLinkItem> }
   | { epigraphicUnit: OchreLinkItem | Array<OchreLinkItem> }
   | { bibliography: OchreBibliography | Array<OchreBibliography> };
 
-/**
- * Raw OCHRE image
- */
 export type OchreImage = {
   publicationDateTime?: string; // YYYY-MM-DDThh:mm:ssZ
   identification?: OchreIdentification;
@@ -344,15 +263,12 @@ export type OchreImage = {
   content?: FakeString;
 };
 
-/**
- * Raw OCHRE bibliography
- */
 export type OchreBibliography = {
   uuid: string;
   publicationDateTime?: string; // YYYY-MM-DDThh:mm:ssZ
-  type: string;
-  n: number;
-  identification: OchreIdentification;
+  type?: string;
+  n?: number;
+  identification?: OchreIdentification;
   project?: { identification: OchreIdentification };
   context?: OchreContext;
   sourceDocument?: {
@@ -371,6 +287,7 @@ export type OchreBibliography = {
     startIssue: FakeString;
     startVolume: FakeString;
   };
+  citationFormat?: string;
   citationFormatSpan?:
     | {
         span: {
@@ -413,9 +330,6 @@ export type OchreBibliography = {
   properties?: { property: OchreProperty | Array<OchreProperty> };
 };
 
-/**
- * Raw OCHRE note
- */
 export type OchreNote =
   | string
   | {
@@ -423,9 +337,6 @@ export type OchreNote =
       content: OchreStringRichText | Array<OchreStringRichText>;
     };
 
-/**
- * Raw OCHRE period
- */
 export type OchrePeriod = {
   uuid: string;
   publicationDateTime?: string; // YYYY-MM-DDThh:mm:ssZ
@@ -433,9 +344,6 @@ export type OchrePeriod = {
   identification: OchreIdentification;
 };
 
-/**
- * Raw OCHRE image map area
- */
 export type OchreImageMapArea = {
   uuid: string;
   publicationDateTime?: string; // YYYY-MM-DDThh:mm:ssZ
@@ -445,26 +353,17 @@ export type OchreImageMapArea = {
   coords: string; // comma separated list of numbers
 };
 
-/**
- * Raw OCHRE image map
- */
 export type OchreImageMap = {
   area: OchreImageMapArea | Array<OchreImageMapArea>;
   width: number;
   height: number;
 };
 
-/**
- * Raw OCHRE context
- */
 export type OchreContext = {
   context: OchreContextValue | Array<OchreContextValue>;
   displayPath: string;
 };
 
-/**
- * Raw OCHRE context value
- */
 export type OchreContextValue = {
   tree: OchreContextItem;
   project: OchreContextItem;
@@ -472,9 +371,6 @@ export type OchreContextValue = {
   displayPath: string;
 };
 
-/**
- * Raw OCHRE context item
- */
 export type OchreContextItem = {
   uuid: string;
   publicationDateTime?: string; // YYYY-MM-DDThh:mm:ssZ
@@ -482,9 +378,6 @@ export type OchreContextItem = {
   content: FakeString;
 };
 
-/**
- * Raw OCHRE person
- */
 export type OchrePerson = {
   uuid: string;
   publicationDateTime?: string; // YYYY-MM-DDThh:mm:ssZ
@@ -494,9 +387,6 @@ export type OchrePerson = {
   content?: FakeString | null;
 };
 
-/**
- * Raw OCHRE observation
- */
 export type OchreObservation = {
   observationNo: number;
   date?: string; // YYYY-MM-DD
@@ -506,9 +396,6 @@ export type OchreObservation = {
   properties?: { property: OchreProperty | Array<OchreProperty> };
 };
 
-/**
- * Raw OCHRE coordinates
- */
 export type OchreCoordinates = {
   latitude: number;
   longitude: number;
@@ -523,9 +410,6 @@ export type OchreCoordinates = {
   };
 };
 
-/**
- * Raw OCHRE event
- */
 export type OchreEvent = {
   dateTime?: string; // YYYY-MM-DD
   agent?: {
@@ -535,9 +419,6 @@ export type OchreEvent = {
   label: OchreStringContent;
 };
 
-/**
- * Raw OCHRE interpretation
- */
 export type OchreInterpretation = {
   date: string; // YYYY-MM-DD
   interpretationNo: number;

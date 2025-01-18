@@ -1,6 +1,10 @@
-// import { expect, test } from "vitest";
-// import { hello } from "./utils.js";
+import { expect, it } from "vitest";
+import { fetchWebsite } from "./utils/fetchers/website.js";
 
-// test("hello", () => {
-//   expect(hello("world")).toBe("Hello, world!");
-// });
+it("website", async () => {
+  const website = await fetchWebsite("ospama");
+
+  expect(website?.identification.label).toBe(
+    "Gender and Politics in Early Modern European Republics (Venice, Genoa XV-XVIII centuries)",
+  );
+});

@@ -1,6 +1,5 @@
-/**
- * Core data structure containing metadata and item content
- */
+import type { Language } from "iso-639-3";
+
 export type Data = {
   uuid: string;
   belongsTo: {
@@ -12,17 +11,11 @@ export type Data = {
   item: Tree | Set | Resource | SpatialUnit | Concept;
 };
 
-/**
- * Basic identification information with label and abbreviation
- */
 export type Identification = {
   label: string;
   abbreviation: string;
 };
 
-/**
- * Metadata containing project, item, dataset and publication information
- */
 export type Metadata = {
   project: {
     identification: Identification & { website: string | null };
@@ -35,14 +28,11 @@ export type Metadata = {
   } | null;
   dataset: string;
   publisher: string;
-  languages: Array<string>;
+  languages: Array<Language["iso6393"]>;
   identifier: string;
   description: string;
 };
 
-/**
- * Context item containing reference information
- */
 export type ContextItem = {
   uuid: string;
   publicationDateTime: Date | null;
@@ -50,34 +40,22 @@ export type ContextItem = {
   content: string;
 };
 
-/**
- * Node in a context tree structure
- */
 export type ContextNode = {
   tree: ContextItem;
   project: ContextItem;
   spatialUnit: Array<ContextItem>;
 };
 
-/**
- * Context containing hierarchical nodes and display path
- */
 export type Context = {
   nodes: Array<ContextNode>;
   displayPath: string;
 };
 
-/**
- * License information with content and URL
- */
 export type License = {
   content: string;
   url: string;
 };
 
-/**
- * Person information including identification and metadata
- */
 export type Person = {
   uuid: string;
   publicationDateTime: Date | null;
@@ -87,18 +65,12 @@ export type Person = {
   content: string | null;
 };
 
-/**
- * Note with number, title and content
- */
 export type Note = {
   number: number;
   title: string | null;
   content: string;
 };
 
-/**
- * Image with metadata and source information
- */
 export type Image = {
   publicationDateTime: Date | null;
   identification: Identification | null;
@@ -107,9 +79,6 @@ export type Image = {
   content: string | null;
 };
 
-/**
- * Link to another resource with metadata
- */
 export type Link = {
   uuid: string;
   publicationDateTime: Date | null;
@@ -118,6 +87,7 @@ export type Link = {
     | "resource"
     | "concept"
     | "set"
+    | "tree"
     | "person"
     | "bibliography"
     | "epigraphicUnit"
@@ -134,9 +104,6 @@ export type Link = {
   bibliographies: Array<Bibliography> | null;
 };
 
-/**
- * Area within an image map
- */
 export type ImageMapArea = {
   uuid: string;
   publicationDateTime: Date | null;
@@ -146,18 +113,12 @@ export type ImageMapArea = {
   coords: Array<number>;
 };
 
-/**
- * Image map containing clickable areas
- */
 export type ImageMap = {
   area: Array<ImageMapArea>;
   width: number;
   height: number;
 };
 
-/**
- * Geographic coordinates with optional metadata
- */
 export type Coordinates = {
   latitude: number;
   longitude: number;
@@ -165,9 +126,6 @@ export type Coordinates = {
   label: string | null;
 };
 
-/**
- * Observation record with metadata, notes, links and properties
- */
 export type Observation = {
   number: number;
   date: Date | null;
@@ -177,9 +135,6 @@ export type Observation = {
   properties: Array<Property>;
 };
 
-/**
- * Event record with date, label and optional agent
- */
 export type Event = {
   date: Date | null;
   label: string;
@@ -189,35 +144,23 @@ export type Event = {
   } | null;
 };
 
-/**
- * Interpretation record with date, number and properties
- */
 export type Interpretation = {
   date: Date | null;
   number: number;
   properties: Array<Property>;
 };
 
-/**
- * Document containing content and footnotes
- */
 export type Document = {
   content: string;
   footnotes: Array<Footnote>;
 };
 
-/**
- * Footnote with identifier, label and content
- */
 export type Footnote = {
   uuid: string;
   label: string;
   content: string;
 };
 
-/**
- * Resource record containing metadata and content
- */
 export type Resource = {
   uuid: string;
   variant: "resource";
@@ -245,17 +188,11 @@ export type Resource = {
   resources: Array<NestedResource>;
 };
 
-/**
- * Nested resource without publication and license information
- */
 export type NestedResource = Omit<
   Resource,
   "publicationDateTime" | "license" | "copyright"
 >;
 
-/**
- * Spatial unit record with location and observation data
- */
 export type SpatialUnit = {
   uuid: string;
   variant: "spatialUnit";
@@ -272,9 +209,6 @@ export type SpatialUnit = {
   events: Array<Event>;
 };
 
-/**
- * Nested spatial unit without publication and observation data
- */
 export type NestedSpatialUnit = Omit<
   SpatialUnit,
   "publicationDateTime" | "license" | "observations" | "events"
@@ -282,9 +216,6 @@ export type NestedSpatialUnit = Omit<
   properties: Array<Property>;
 };
 
-/**
- * Concept record with interpretations
- */
 export type Concept = {
   uuid: string;
   variant: "concept";
@@ -296,14 +227,8 @@ export type Concept = {
   interpretations: Array<Interpretation>;
 };
 
-/**
- * Nested concept without publication and license information
- */
 export type NestedConcept = Omit<Concept, "publicationDateTime" | "license">;
 
-/**
- * Set containing collections of resources, spatial units and concepts
- */
 export type Set = {
   uuid: string;
   variant: "set";
@@ -323,18 +248,16 @@ export type Set = {
   };
 };
 
-/**
- * Bibliography record with citation and publication information
- */
 export type Bibliography = {
   uuid: string;
   publicationDateTime: Date | null;
-  type: string;
-  number: number;
-  identification: Identification;
+  type: string | null;
+  number: number | null;
+  identification: Identification | null;
   projectIdentification: Identification | null;
   context: Context | null;
   citation: {
+    format: string | null;
     short: string | null;
     long: string | null;
   };
@@ -357,9 +280,6 @@ export type Bibliography = {
   properties: Array<Property>;
 };
 
-/**
- * Period record with identification information
- */
 export type Period = {
   uuid: string;
   publicationDateTime: Date | null;
@@ -367,21 +287,16 @@ export type Period = {
   identification: Identification;
 };
 
-/**
- * Valid property value types
- */
 export type PropertyValueType =
   | "string"
   | "number"
+  | "integer"
   | "boolean"
   | "date"
   | "dateTime"
   | "time"
   | "IDREF";
 
-/**
- * Property value with type information
- */
 export type PropertyValue = {
   content: string;
   type: PropertyValueType;
@@ -390,9 +305,6 @@ export type PropertyValue = {
   publicationDateTime: Date | null;
 };
 
-/**
- * Property with values and nested properties
- */
 export type Property = {
   label: string;
   values: Array<PropertyValue>;
@@ -400,9 +312,6 @@ export type Property = {
   properties: Array<Property>;
 };
 
-/**
- * Tree structure containing resources, spatial units and concepts
- */
 export type Tree = {
   uuid: string;
   variant: "tree";
@@ -421,9 +330,6 @@ export type Tree = {
   properties: Array<Property>;
 };
 
-/**
- * Website configuration and content
- */
 export type Website = {
   uuid: string;
   publicationDateTime: Date | null;
@@ -439,9 +345,6 @@ export type Website = {
   properties: WebsiteProperties;
 };
 
-/**
- * Website configuration properties
- */
 export type WebsiteProperties = {
   type:
     | "traditional"
@@ -460,9 +363,6 @@ export type WebsiteProperties = {
   logoUrl: string | null;
 };
 
-/**
- * Webpage content and properties
- */
 export type Webpage = {
   title: string;
   slug: string;
@@ -471,9 +371,6 @@ export type Webpage = {
   webpages: Array<Webpage>;
 };
 
-/**
- * Webpage display properties
- */
 export type WebpageProperties = {
   displayedInHeader: boolean;
   width: "full" | "large" | "default";
@@ -482,9 +379,6 @@ export type WebpageProperties = {
   tailwindClasses: Array<string>;
 };
 
-/**
- * Web element with styling information
- */
 export type WebElement = {
   uuid: string;
   title: string;
@@ -492,22 +386,19 @@ export type WebElement = {
   tailwindClasses: Array<string>;
 } & WebElementComponent;
 
-/**
- * Web element component variants
- */
 export type WebElementComponent =
   | {
       component: "annotated-document";
       document: Document;
     }
-  | { component: "annotated-image"; imageUrl: string }
+  | { component: "annotated-image"; imageUuid: string }
   | {
       component: "bibliography";
       bibliographies: Array<Bibliography>;
       layout: "long" | "short";
     }
+  | { component: "blog"; blogId: string }
   | { component: "button"; href: string }
-  | { component: "button-group"; layout: "horizontal" | "vertical" }
   | {
       component: "collection";
       variant: "full" | "highlights";
@@ -534,21 +425,17 @@ export type WebElementComponent =
       component: "text-image";
       variant: "title" | "block" | "banner";
       layout:
-        | "caption-top"
-        | "caption-bottom"
         | "image-top"
         | "image-bottom"
         | "image-start"
         | "image-end"
         | "image-background";
+      captionLayout: "top" | "bottom" | "suppress";
       image: WebImage;
       imageOpacity: number | null;
       content: string;
     };
 
-/**
- * Web image with dimensions
- */
 export type WebImage = {
   url: string;
   label: string | null;
@@ -556,9 +443,6 @@ export type WebImage = {
   height: number;
 };
 
-/**
- * CSS style definition
- */
 export type Style = {
   label: string;
   value: string;

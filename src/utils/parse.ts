@@ -1,4 +1,33 @@
-import { z } from "zod";
+import type {
+  FakeString,
+  OchreBibliography,
+  OchreConcept,
+  OchreContext,
+  OchreContextItem,
+  OchreCoordinates,
+  OchreEvent,
+  OchreIdentification,
+  OchreImage,
+  OchreImageMap,
+  OchreInterpretation,
+  OchreLanguage,
+  OchreLicense,
+  OchreLink,
+  OchreMetadata,
+  OchreNestedConcept,
+  OchreNestedResource,
+  OchreNestedSpatialUnit,
+  OchreNote,
+  OchreObservation,
+  OchrePeriod,
+  OchrePerson,
+  OchreProperty,
+  OchreResource,
+  OchreSet,
+  OchreSpatialUnit,
+  OchreStringRichText,
+  OchreTree,
+} from "../types/internal.raw.d.ts";
 import type {
   Bibliography,
   Concept,
@@ -34,45 +63,17 @@ import type {
   Webpage,
   Website,
   WebsiteProperties,
-} from "../types/main.d.ts";
-import type {
-  FakeString,
-  OchreBibliography,
-  OchreConcept,
-  OchreContext,
-  OchreContextItem,
-  OchreCoordinates,
-  OchreEvent,
-  OchreIdentification,
-  OchreImage,
-  OchreImageMap,
-  OchreInterpretation,
-  OchreLanguage,
-  OchreLicense,
-  OchreLink,
-  OchreMetadata,
-  OchreNestedConcept,
-  OchreNestedResource,
-  OchreNestedSpatialUnit,
-  OchreNote,
-  OchreObservation,
-  OchrePeriod,
-  OchrePerson,
-  OchreProperty,
-  OchreResource,
-  OchreSet,
-  OchreSpatialUnit,
-  OchreStringRichText,
-  OchreTree,
-} from "../types/raw.d.ts";
-import { fetchResource } from "./fetchers.js";
-import { getPropertyValueByLabel } from "./getters.js";
+} from "../types/main.js";
+import { z } from "zod";
+import { fetchResource } from "../utils/fetchers/resource.js";
+import { getPropertyValueByLabel } from "../utils/getters.js";
 import {
   parseEmailAndUrl,
   parseFakeString,
   parseStringContent,
   parseStringDocumentItem,
-} from "./string.js";
+  trimEndLineBreaks,
+} from "../utils/string.js";
 
 const websiteSchema = z.object({
   type: z.enum(
@@ -107,8 +108,8 @@ const componentSchema = z.enum(
     "annotated-document",
     "annotated-image",
     "bibliography",
+    "blog",
     "button",
-    "button-group",
     "collection",
     "iiif-viewer",
     "image",
@@ -127,11 +128,6 @@ const componentSchema = z.enum(
   { message: "Invalid component" },
 );
 
-/**
- * Parses an OCHRE identification object into a standardized Identification type
- * @param identification - Raw OCHRE identification object
- * @returns Parsed Identification object with label and abbreviation
- */
 export function parseIdentification(
   identification: OchreIdentification,
 ): Identification {
@@ -160,11 +156,6 @@ export function parseIdentification(
   }
 }
 
-/**
- * Parses OCHRE language data into an array of language codes
- * @param language - Raw OCHRE language data (single or array)
- * @returns Array of language code strings
- */
 function parseLanguages(
   language: OchreLanguage | Array<OchreLanguage>,
 ): Array<string> {
@@ -175,11 +166,6 @@ function parseLanguages(
   }
 }
 
-/**
- * Parses OCHRE metadata into standardized Metadata type
- * @param metadata - Raw OCHRE metadata object
- * @returns Parsed Metadata object containing project, item, dataset and other metadata
- */
 export function parseMetadata(metadata: OchreMetadata): Metadata {
   let identification: Identification = {
     label: "",
@@ -223,7 +209,7 @@ export function parseMetadata(metadata: OchreMetadata): Metadata {
     item:
       metadata.item ?
         {
-          identification: identification,
+          identification,
           category: metadata.item.category,
           type: metadata.item.type,
           maxLength: metadata.item.maxLength ?? null,
@@ -237,16 +223,11 @@ export function parseMetadata(metadata: OchreMetadata): Metadata {
   };
 }
 
-/**
- * Parses an OCHRE context item into standardized ContextItem type
- * @param contextItem - Raw OCHRE context item
- * @returns Parsed ContextItem with uuid, dates, number and content
- */
 function parseContextItem(contextItem: OchreContextItem): ContextItem {
   return {
     uuid: contextItem.uuid,
     publicationDateTime:
-      contextItem.publicationDateTime ?
+      contextItem.publicationDateTime != null ?
         new Date(contextItem.publicationDateTime)
       : null,
     number: contextItem.n,
@@ -254,11 +235,6 @@ function parseContextItem(contextItem: OchreContextItem): ContextItem {
   };
 }
 
-/**
- * Parses OCHRE context data into standardized Context type
- * @param context - Raw OCHRE context object
- * @returns Parsed Context object with nodes and display path
- */
 function parseContext(context: OchreContext): Context {
   const contexts =
     Array.isArray(context.context) ? context.context : [context.context];
@@ -289,11 +265,6 @@ function parseContext(context: OchreContext): Context {
   return returnContexts;
 }
 
-/**
- * Parses OCHRE license data into standardized License type
- * @param license - Raw OCHRE license object
- * @returns Parsed License object with content and URL, or null if invalid
- */
 function parseLicense(license: OchreLicense): License | null {
   if (typeof license.license === "string") {
     return null;
@@ -305,43 +276,34 @@ function parseLicense(license: OchreLicense): License | null {
   };
 }
 
-/**
- * Parses an array of OCHRE person objects into standardized Person type
- * @param persons - Array of raw OCHRE person objects
- * @returns Array of parsed Person objects
- */
 function parsePersons(persons: Array<OchrePerson>): Array<Person> {
   const returnPersons: Array<Person> = [];
   for (const person of persons) {
     returnPersons.push({
       uuid: person.uuid,
       publicationDateTime:
-        person.publicationDateTime ?
+        person.publicationDateTime != null ?
           new Date(person.publicationDateTime)
         : null,
       type: person.type ?? null,
-      date: person.date ? new Date(person.date) : null,
+      date: person.date != null ? new Date(person.date) : null,
       identification:
         person.identification ?
           parseIdentification(person.identification)
         : null,
-      content: person.content ? parseFakeString(person.content) : null,
+      content: person.content != null ? parseFakeString(person.content) : null,
     });
   }
 
   return returnPersons;
 }
 
-/**
- * Parses OCHRE link data into standardized Link type
- * @param linkRaw - Raw OCHRE link object
- * @returns Array of parsed Link objects
- */
 function parseLink(linkRaw: OchreLink): Array<Link> {
   const links =
     "resource" in linkRaw ? linkRaw.resource
     : "concept" in linkRaw ? linkRaw.concept
     : "set" in linkRaw ? linkRaw.set
+    : "tree" in linkRaw ? linkRaw.tree
     : "person" in linkRaw ? linkRaw.person
     : "bibliography" in linkRaw ? linkRaw.bibliography
     : "epigraphicUnit" in linkRaw ? linkRaw.epigraphicUnit
@@ -362,12 +324,13 @@ function parseLink(linkRaw: OchreLink): Array<Link> {
         : "concept" in linkRaw ? "concept"
         : "set" in linkRaw ? "set"
         : "person" in linkRaw ? "person"
+        : "tree" in linkRaw ? "tree"
         : "bibliography" in linkRaw ? "bibliography"
         : "epigraphicUnit" in linkRaw ? "epigraphicUnit"
         : null,
       content:
         "content" in link ?
-          link.content ?
+          link.content != null ?
             parseFakeString(link.content)
           : null
         : null,
@@ -385,16 +348,17 @@ function parseLink(linkRaw: OchreLink): Array<Link> {
           )
         : null,
       publicationDateTime:
-        link.publicationDateTime ? new Date(link.publicationDateTime) : null,
+        link.publicationDateTime != null ?
+          new Date(link.publicationDateTime)
+        : null,
     };
 
     if (
-      "resource" in link &&
       "height" in link &&
-      link.height &&
-      link.width &&
-      link.heightPreview &&
-      link.widthPreview
+      link.height != null &&
+      link.width != null &&
+      link.heightPreview != null &&
+      link.widthPreview != null
     ) {
       returnLink.image = {
         isInline: link.rend === "inline",
@@ -411,11 +375,6 @@ function parseLink(linkRaw: OchreLink): Array<Link> {
   return returnLinks;
 }
 
-/**
- * Parses an array of OCHRE links into standardized Link type
- * @param links - Array of raw OCHRE link objects
- * @returns Array of parsed Link objects
- */
 function parseLinks(links: Array<OchreLink>): Array<Link> {
   const returnLinks: Array<Link> = [];
 
@@ -426,12 +385,6 @@ function parseLinks(links: Array<OchreLink>): Array<Link> {
   return returnLinks;
 }
 
-/**
- * Parses OCHRE document data into standardized Document type
- * @param document - Raw OCHRE document object (single or array)
- * @param language - Language code to parse (defaults to 'eng')
- * @returns Parsed Document object with content and footnotes
- */
 function parseDocument(
   document: OchreStringRichText | Array<OchreStringRichText>,
   language = "eng",
@@ -462,39 +415,32 @@ function parseDocument(
     }
   }
 
-  return { content: returnString, footnotes: footnotes };
+  returnString = trimEndLineBreaks(returnString);
+
+  return { content: returnString, footnotes };
 }
 
-/**
- * Parses OCHRE image data into standardized Image type
- * @param image - Raw OCHRE image object
- * @returns Parsed Image object or null
- */
 function parseImage(image: OchreImage): Image | null {
   return {
     publicationDateTime:
-      image.publicationDateTime ? new Date(image.publicationDateTime) : null,
+      image.publicationDateTime != null ?
+        new Date(image.publicationDateTime)
+      : null,
     identification:
       image.identification ? parseIdentification(image.identification) : null,
     url:
       image.href ??
-      (!image.htmlImgSrcPrefix && image.content ?
+      (image.htmlImgSrcPrefix == null && image.content != null ?
         parseFakeString(image.content)
       : null),
     htmlPrefix: image.htmlImgSrcPrefix ?? null,
     content:
-      image.htmlImgSrcPrefix && image.content ?
+      image.htmlImgSrcPrefix != null && image.content != null ?
         parseFakeString(image.content)
       : null,
   };
 }
 
-/**
- * Parses OCHRE notes into standardized Note type
- * @param notes - Array of raw OCHRE note objects
- * @param language - Language code to parse (defaults to 'eng')
- * @returns Array of parsed Note objects
- */
 function parseNotes(notes: Array<OchreNote>, language = "eng"): Array<Note> {
   const returnNotes: Array<Note> = [];
   for (const note of notes) {
@@ -543,7 +489,9 @@ function parseNotes(notes: Array<OchreNote>, language = "eng"): Array<Note> {
     returnNotes.push({
       number: note.noteNo,
       title:
-        noteWithLanguage.title ? parseFakeString(noteWithLanguage.title) : null,
+        noteWithLanguage.title != null ?
+          parseFakeString(noteWithLanguage.title)
+        : null,
       content,
     });
   }
@@ -551,34 +499,24 @@ function parseNotes(notes: Array<OchreNote>, language = "eng"): Array<Note> {
   return returnNotes;
 }
 
-/**
- * Parses OCHRE coordinates into standardized Coordinates type
- * @param coordinates - Raw OCHRE coordinates object
- * @returns Parsed Coordinates object
- */
 function parseCoordinates(coordinates: OchreCoordinates): Coordinates {
   return {
     latitude: coordinates.latitude,
     longitude: coordinates.longitude,
     type: coordinates.coord?.coordType ?? null,
     label:
-      coordinates.coord?.coordLabel ?
+      coordinates.coord?.coordLabel != null ?
         parseFakeString(coordinates.coord.coordLabel)
       : null,
   };
 }
 
-/**
- * Parses OCHRE observation into standardized Observation type
- * @param observation - Raw OCHRE observation object
- * @returns Parsed Observation object
- */
 function parseObservation(observation: OchreObservation): Observation {
   return {
     number: observation.observationNo,
-    date: observation.date ? new Date(observation.date) : null,
+    date: observation.date != null ? new Date(observation.date) : null,
     observers:
-      observation.observers ?
+      observation.observers != null ?
         parseFakeString(observation.observers)
           .split(";")
           .map((observer) => observer.trim())
@@ -610,11 +548,6 @@ function parseObservation(observation: OchreObservation): Observation {
   };
 }
 
-/**
- * Parses array of OCHRE observations into standardized Observation type
- * @param observations - Array of raw OCHRE observation objects
- * @returns Array of parsed Observation objects
- */
 function parseObservations(
   observations: Array<OchreObservation>,
 ): Array<Observation> {
@@ -625,16 +558,11 @@ function parseObservations(
   return returnObservations;
 }
 
-/**
- * Parses array of OCHRE events into standardized Event type
- * @param events - Array of raw OCHRE event objects
- * @returns Array of parsed Event objects
- */
 function parseEvents(events: Array<OchreEvent>): Array<Event> {
   const returnEvents: Array<Event> = [];
   for (const event of events) {
     returnEvents.push({
-      date: event.dateTime ? new Date(event.dateTime) : null,
+      date: event.dateTime != null ? new Date(event.dateTime) : null,
       label: parseStringContent(event.label),
       agent:
         event.agent ?
@@ -649,12 +577,6 @@ function parseEvents(events: Array<OchreEvent>): Array<Event> {
   return returnEvents;
 }
 
-/**
- * Parses OCHRE properties into standardized Property type
- * @param properties - Array of raw OCHRE property objects
- * @param language - Language code to parse (defaults to 'eng')
- * @returns Array of parsed Property objects
- */
 function parseProperties(
   properties: Array<OchreProperty>,
   language = "eng",
@@ -674,7 +596,9 @@ function parseProperties(
       category: value.category !== "value" ? (value.category ?? null) : null,
       uuid: value.uuid ?? null,
       publicationDateTime:
-        value.publicationDateTime ? new Date(value.publicationDateTime) : null,
+        value.publicationDateTime != null ?
+          new Date(value.publicationDateTime)
+        : null,
     }));
 
     returnProperties.push({
@@ -682,7 +606,8 @@ function parseProperties(
         .replace(/\s*\.{3}$/, "")
         .trim(),
       values,
-      comment: property.comment ? parseFakeString(property.comment) : null,
+      comment:
+        property.comment != null ? parseFakeString(property.comment) : null,
       properties:
         property.property ?
           parseProperties(
@@ -697,11 +622,6 @@ function parseProperties(
   return returnProperties;
 }
 
-/**
- * Parses OCHRE interpretations into standardized Interpretation type
- * @param interpretations - Array of raw OCHRE interpretation objects
- * @returns Array of parsed Interpretation objects
- */
 function parseInterpretations(
   interpretations: Array<OchreInterpretation>,
 ): Array<Interpretation> {
@@ -724,11 +644,6 @@ function parseInterpretations(
   return returnInterpretations;
 }
 
-/**
- * Parses OCHRE image map into standardized ImageMap type
- * @param imageMap - Raw OCHRE image map object
- * @returns Parsed ImageMap object
- */
 function parseImageMap(imageMap: OchreImageMap): ImageMap {
   const returnImageMap: ImageMap = {
     area: [],
@@ -742,7 +657,9 @@ function parseImageMap(imageMap: OchreImageMap): ImageMap {
     returnImageMap.area.push({
       uuid: area.uuid,
       publicationDateTime:
-        area.publicationDateTime ? new Date(area.publicationDateTime) : null,
+        area.publicationDateTime != null ?
+          new Date(area.publicationDateTime)
+        : null,
       type: area.type,
       title: parseFakeString(area.title),
       shape: area.shape === "rect" ? "rectangle" : "polygon",
@@ -753,26 +670,18 @@ function parseImageMap(imageMap: OchreImageMap): ImageMap {
   return returnImageMap;
 }
 
-/**
- * Parses OCHRE period into standardized Period type
- * @param period - Raw OCHRE period object
- * @returns Parsed Period object
- */
 function parsePeriod(period: OchrePeriod): Period {
   return {
     uuid: period.uuid,
     publicationDateTime:
-      period.publicationDateTime ? new Date(period.publicationDateTime) : null,
+      period.publicationDateTime != null ?
+        new Date(period.publicationDateTime)
+      : null,
     type: period.type,
     identification: parseIdentification(period.identification),
   };
 }
 
-/**
- * Parses array of OCHRE periods into standardized Period type
- * @param periods - Array of raw OCHRE period objects
- * @returns Array of parsed Period objects
- */
 function parsePeriods(periods: Array<OchrePeriod>): Array<Period> {
   const returnPeriods: Array<Period> = [];
   for (const period of periods) {
@@ -781,11 +690,6 @@ function parsePeriods(periods: Array<OchrePeriod>): Array<Period> {
   return returnPeriods;
 }
 
-/**
- * Parses OCHRE bibliography into standardized Bibliography type
- * @param bibliography - Raw OCHRE bibliography object
- * @returns Parsed Bibliography object
- */
 export function parseBibliography(
   bibliography: OchreBibliography,
 ): Bibliography {
@@ -804,23 +708,25 @@ export function parseBibliography(
     };
   }
 
-  // console.log("bib", bibliography);
-
   return {
     uuid: bibliography.uuid,
     publicationDateTime:
-      bibliography.publicationDateTime ?
+      bibliography.publicationDateTime != null ?
         new Date(bibliography.publicationDateTime)
       : null,
-    type: bibliography.type,
-    number: bibliography.n,
-    identification: parseIdentification(bibliography.identification),
+    type: bibliography.type ?? null,
+    number: bibliography.n ?? null,
+    identification:
+      bibliography.identification ?
+        parseIdentification(bibliography.identification)
+      : null,
     projectIdentification:
       bibliography.project?.identification ?
         parseIdentification(bibliography.project.identification)
       : null,
     context: bibliography.context ? parseContext(bibliography.context) : null,
     citation: {
+      format: bibliography.citationFormat ?? null,
       short:
         bibliography.citationFormatSpan ?
           parseFakeString(
@@ -894,11 +800,6 @@ export function parseBibliography(
   };
 }
 
-/**
- * Parses array of OCHRE bibliographies into standardized Bibliography type
- * @param bibliographies - Array of raw OCHRE bibliography objects
- * @returns Array of parsed Bibliography objects
- */
 function parseBibliographies(
   bibliographies: Array<OchreBibliography>,
 ): Array<Bibliography> {
@@ -909,11 +810,6 @@ function parseBibliographies(
   return returnBibliographies;
 }
 
-/**
- * Parses OCHRE tree into standardized Tree type
- * @param tree - Raw OCHRE tree object
- * @returns Parsed Tree object or null
- */
 export function parseTree(tree: OchreTree): Tree | null {
   let creators: Array<Person> = [];
   if (tree.creators) {
@@ -925,7 +821,7 @@ export function parseTree(tree: OchreTree): Tree | null {
   }
 
   let date = null;
-  if (tree.date) {
+  if (tree.date != null) {
     date = new Date(tree.date);
   }
 
@@ -959,9 +855,9 @@ export function parseTree(tree: OchreTree): Tree | null {
     variant: "tree",
     publicationDateTime: new Date(tree.publicationDateTime),
     identification: parseIdentification(tree.identification),
-    creators: creators,
+    creators,
     license: parseLicense(tree.availability),
-    date: date,
+    date,
     type: tree.type,
     number: tree.n,
     items: {
@@ -982,11 +878,6 @@ export function parseTree(tree: OchreTree): Tree | null {
   return returnTree;
 }
 
-/**
- * Parses OCHRE set into standardized Set type
- * @param set - Raw OCHRE set object
- * @returns Parsed Set object
- */
 export function parseSet(set: OchreSet): Set {
   let resources: Array<NestedResource> = [];
   let spatialUnits: Array<NestedSpatialUnit> = [];
@@ -1022,7 +913,7 @@ export function parseSet(set: OchreSet): Set {
     variant: "set",
     publicationDateTime:
       set.publicationDateTime ? new Date(set.publicationDateTime) : null,
-    date: set.date ? new Date(set.date) : null,
+    date: set.date != null ? new Date(set.date) : null,
     license: parseLicense(set.availability),
     identification: parseIdentification(set.identification),
     isSuppressingBlanks: set.suppressBlanks ?? false,
@@ -1045,12 +936,6 @@ export function parseSet(set: OchreSet): Set {
   };
 }
 
-/**
- * Parses OCHRE resource into standardized Resource or NestedResource type
- * @param resource - Raw OCHRE resource or nested resource object
- * @param isNested - Whether the resource is nested (defaults to false)
- * @returns Parsed Resource or NestedResource object
- */
 export function parseResource(
   resource: OchreResource | OchreNestedResource,
   isNested = false,
@@ -1074,11 +959,11 @@ export function parseResource(
         parseLicense(resource.availability)
       : null,
     copyright:
-      "copyright" in resource && resource.copyright ?
+      "copyright" in resource && resource.copyright != null ?
         parseFakeString(resource.copyright)
       : null,
     identification: parseIdentification(resource.identification),
-    date: resource.date ? new Date(resource.date) : null,
+    date: resource.date != null ? new Date(resource.date) : null,
     image: resource.image ? parseImage(resource.image) : null,
     creators:
       resource.creators ?
@@ -1176,12 +1061,6 @@ export function parseResource(
   return returnResource;
 }
 
-/**
- * Parses array of OCHRE resources into standardized Resource or NestedResource type
- * @param resources - Array of raw OCHRE resource objects
- * @param isNested - Whether the resources are nested (defaults to false)
- * @returns Array of parsed Resource or NestedResource objects
- */
 export function parseResources(
   resources: Array<OchreResource> | Array<OchreNestedResource>,
   isNested = false,
@@ -1196,12 +1075,6 @@ export function parseResources(
   return returnResources;
 }
 
-/**
- * Parses OCHRE spatial unit into standardized SpatialUnit or NestedSpatialUnit type
- * @param spatialUnit - Raw OCHRE spatial unit object
- * @param isNested - Whether the spatial unit is nested (defaults to false)
- * @returns Parsed SpatialUnit or NestedSpatialUnit object
- */
 export function parseSpatialUnit(
   spatialUnit: OchreSpatialUnit | OchreNestedSpatialUnit,
   isNested = false,
@@ -1210,7 +1083,7 @@ export function parseSpatialUnit(
     uuid: spatialUnit.uuid,
     variant: "spatialUnit",
     publicationDateTime:
-      spatialUnit.publicationDateTime ?
+      spatialUnit.publicationDateTime != null ?
         new Date(spatialUnit.publicationDateTime)
       : null,
     type: spatialUnit.type,
@@ -1302,12 +1175,6 @@ function parseSpatialUnits<T extends boolean>(
   return returnSpatialUnits;
 }
 
-/**
- * Parses OCHRE concept into standardized Concept or NestedConcept type
- * @param concept - Raw OCHRE concept object
- * @param isNested - Whether the concept is nested (defaults to false)
- * @returns Parsed Concept or NestedConcept object
- */
 export function parseConcept(
   concept: OchreConcept | OchreNestedConcept,
   isNested = false,
@@ -1357,12 +1224,51 @@ export function parseConcept(
   return returnConcept;
 }
 
-/**
- * Parses OCHRE concepts into standardized Concept or NestedConcept type
- * @param concepts - Array of raw OCHRE concept objects
- * @param isNested - Whether the concepts are nested (defaults to false)
- * @returns Array of parsed Concept or NestedConcept objects
- */
+const parseWebpageResources = async <T extends "element" | "page">(
+  webpageResources: Array<OchreResource>,
+  type: T,
+): Promise<Array<T extends "element" ? WebElement : Webpage>> => {
+  const returnElements: Array<T extends "element" ? WebElement : Webpage> = [];
+
+  for (const resource of webpageResources) {
+    const resourceProperties =
+      resource.properties ?
+        parseProperties(
+          Array.isArray(resource.properties.property) ?
+            resource.properties.property
+          : [resource.properties.property],
+        )
+      : [];
+
+    const resourceProperty = resourceProperties.find(
+      (property) =>
+        property.label === "presentation" &&
+        property.values[0]!.content === type,
+    );
+    if (!resourceProperty) continue;
+
+    if (type === "element") {
+      const element = await parseWebElement(
+        resource,
+        resourceProperty.properties,
+      );
+
+      returnElements.push(
+        element as T extends "element" ? WebElement : Webpage,
+      );
+    } else {
+      const webpage = await parseWebpage(resource);
+      if (webpage) {
+        returnElements.push(
+          webpage as T extends "element" ? WebElement : Webpage,
+        );
+      }
+    }
+  }
+
+  return returnElements;
+};
+
 function parseConcepts(
   concepts: Array<OchreConcept> | Array<OchreNestedConcept>,
   isNested = false,
@@ -1406,12 +1312,12 @@ async function parseWebElementProperties(
   if (document === null) {
     const documentLink = links.find((link) => link.type === "internalDocument");
     if (documentLink) {
-      const [error, documentResource] = await fetchResource(documentLink.uuid);
-      if (error !== null) {
-        throw new Error(error);
+      const documentResource = await fetchResource(documentLink.uuid);
+      if (documentResource === null) {
+        throw new Error("Failed to fetch OCHRE data");
       }
 
-      document = documentResource.item.document;
+      document = documentResource.resource.document;
     }
   }
 
@@ -1433,7 +1339,17 @@ async function parseWebElementProperties(
         );
       }
 
-      properties.imageUrl = `https://ochre.lib.uchicago.edu/ochre?uuid=${imageLink.uuid}&load`;
+      let isSearchable =
+        getPropertyValueByLabel(
+          componentProperty.properties,
+          "is-searchable",
+        ) === "Yes";
+      if (!isSearchable) {
+        isSearchable = false;
+      }
+
+      properties.imageUuid = imageLink.uuid;
+      properties.isSearchable = isSearchable;
       break;
     }
     case "bibliography": {
@@ -1456,7 +1372,7 @@ async function parseWebElementProperties(
         componentProperty.properties,
         "layout",
       );
-      if (!layout) {
+      if (layout === null) {
         layout = "long";
       }
 
@@ -1465,14 +1381,25 @@ async function parseWebElementProperties(
 
       break;
     }
+    case "blog": {
+      const blogLink = links.find((link) => link.variant === "tree");
+      if (!blogLink) {
+        throw new Error(
+          `Blog link not found for the following component: “${componentName}”`,
+        );
+      }
+
+      properties.blogId = blogLink.uuid;
+      break;
+    }
     case "button": {
       let href = getPropertyValueByLabel(
         componentProperty.properties,
         "navigate-to",
       );
-      if (!href) {
+      if (href === null) {
         href = getPropertyValueByLabel(componentProperty.properties, "link-to");
-        if (!href) {
+        if (href === null) {
           throw new Error(
             `Properties “navigate-to” or “link-to” not found for the following component: “${componentName}”`,
           );
@@ -1482,24 +1409,12 @@ async function parseWebElementProperties(
       properties.href = href;
       break;
     }
-    case "button-group": {
-      let layout = getPropertyValueByLabel(
-        componentProperty.properties,
-        "layout",
-      );
-      if (!layout) {
-        layout = "horizontal";
-      }
-
-      properties.layout = layout;
-      break;
-    }
     case "collection": {
       const variant = getPropertyValueByLabel(
         componentProperty.properties,
         "variant",
       );
-      if (!variant) {
+      if (variant === null) {
         throw new Error(
           `Property “variant” not found for the following component: “${componentName}”`,
         );
@@ -1509,7 +1424,7 @@ async function parseWebElementProperties(
         componentProperty.properties,
         "layout",
       );
-      if (!layout) {
+      if (layout === null) {
         layout = "image-start";
       }
 
@@ -1609,7 +1524,7 @@ async function parseWebElementProperties(
         componentProperty.properties,
         "variant",
       );
-      if (!variant) {
+      if (variant === null) {
         variant = "block";
       }
 
@@ -1628,7 +1543,7 @@ async function parseWebElementProperties(
         componentProperty.properties,
         "variant",
       );
-      if (!variant) {
+      if (variant === null) {
         variant = "block";
       }
 
@@ -1636,8 +1551,16 @@ async function parseWebElementProperties(
         componentProperty.properties,
         "layout",
       );
-      if (!layout) {
+      if (layout === null) {
         layout = "image-start";
+      }
+
+      let captionLayout = getPropertyValueByLabel(
+        componentProperty.properties,
+        "caption-layout",
+      );
+      if (captionLayout === null) {
+        captionLayout = "bottom";
       }
 
       const imageLink = links.find(
@@ -1653,6 +1576,7 @@ async function parseWebElementProperties(
 
       properties.variant = variant;
       properties.layout = layout;
+      properties.captionLayout = captionLayout;
       properties.content = document.content;
       properties.image = {
         url: `https://ochre.lib.uchicago.edu/ochre?uuid=${imageLink.uuid}&preview`,
@@ -1665,7 +1589,7 @@ async function parseWebElementProperties(
       break;
     }
     default: {
-      throw new Error(
+      console.warn(
         `Invalid or non-implemented component name “${componentName as string}” for the following element: “${parseStringContent(
           elementResource.identification.label,
         )}”`,
@@ -1740,51 +1664,6 @@ async function parseWebElement(
     ...properties,
   };
 }
-
-const parseWebpageResources = async <T extends "element" | "page">(
-  webpageResources: Array<OchreResource>,
-  type: T,
-): Promise<Array<T extends "element" ? WebElement : Webpage>> => {
-  const returnElements: Array<T extends "element" ? WebElement : Webpage> = [];
-
-  for (const resource of webpageResources) {
-    const resourceProperties =
-      resource.properties ?
-        parseProperties(
-          Array.isArray(resource.properties.property) ?
-            resource.properties.property
-          : [resource.properties.property],
-        )
-      : [];
-
-    const resourceProperty = resourceProperties.find(
-      (property) =>
-        property.label === "presentation" &&
-        property.values[0]!.content === type,
-    );
-    if (!resourceProperty) continue;
-
-    if (type === "element") {
-      const element = await parseWebElement(
-        resource,
-        resourceProperty.properties,
-      );
-
-      returnElements.push(
-        element as T extends "element" ? WebElement : Webpage,
-      );
-    } else {
-      const webpage = await parseWebpage(resource);
-      if (webpage) {
-        returnElements.push(
-          webpage as T extends "element" ? WebElement : Webpage,
-        );
-      }
-    }
-  }
-
-  return returnElements;
-};
 
 async function parseWebpage(
   webpageResource: OchreResource,
@@ -1918,21 +1797,21 @@ function parseWebsiteProperties(
 
   const type = websiteProperties.find((property) => property.label === "webUI")
     ?.values[0]?.content;
-  if (!type) {
+  if (type == null) {
     throw new Error("Website type not found");
   }
 
   const status = websiteProperties.find(
     (property) => property.label === "status",
   )?.values[0]?.content;
-  if (!status) {
+  if (status == null) {
     throw new Error("Website status not found");
   }
 
   let privacy = websiteProperties.find(
     (property) => property.label === "privacy",
   )?.values[0]?.content;
-  if (!privacy) {
+  if (privacy == null) {
     privacy = "public";
   }
 
@@ -1988,19 +1867,12 @@ function parseWebsiteProperties(
     isFooterDisplayed,
     isSidebarDisplayed,
     logoUrl:
-      logoUuid ?
+      logoUuid !== null ?
         `https://ochre.lib.uchicago.edu/ochre?uuid=${logoUuid}&load`
       : null,
   };
 }
 
-/**
- * Parses OCHRE website into standardized Website type
- * @param websiteTree - Raw OCHRE website tree object
- * @param projectName - Project name as FakeString
- * @param website - Website URL as FakeString or null
- * @returns Promise resolving to parsed Website object
- */
 export async function parseWebsite(
   websiteTree: OchreTree,
   projectName: FakeString,
@@ -2042,7 +1914,7 @@ export async function parseWebsite(
     identification: parseIdentification(websiteTree.identification),
     project: {
       name: parseFakeString(projectName),
-      website: website ? parseFakeString(website) : null,
+      website: website !== null ? parseFakeString(website) : null,
     },
     creators:
       websiteTree.creators ?

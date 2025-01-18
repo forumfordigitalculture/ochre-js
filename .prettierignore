@@ -1,0 +1,10 @@
+# Package Managers
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+
+# Node Modules
+node_modules
+
+# VS Code
+.vscode
