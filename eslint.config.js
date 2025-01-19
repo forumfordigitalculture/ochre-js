@@ -14,6 +14,7 @@ export default antfu({
     },
     overrides: {
       "ts/no-explicit-any": "error",
+      "ts/no-dynamic-delete": "error",
       "ts/array-type": ["error", { default: "generic" }],
       "ts/consistent-type-definitions": ["error", "type"],
       "ts/consistent-type-imports": [
