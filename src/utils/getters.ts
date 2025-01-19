@@ -107,7 +107,9 @@ export function getAllPropertyLabels(
     labels.add(property.label);
 
     if (property.properties.length > 0 && searchNestedProperties) {
-      const nestedLabels = getAllPropertyLabels(property.properties);
+      const nestedLabels = getAllPropertyLabels(property.properties, {
+        searchNestedProperties: true,
+      });
       for (const label of nestedLabels) {
         labels.add(label);
       }
@@ -115,4 +117,32 @@ export function getAllPropertyLabels(
   }
 
   return [...labels];
+}
+
+export function filterProperties(
+  property: Property,
+  filter: { label: string; value: string },
+  options: PropertyOptions = DEFAULT_OPTIONS,
+) {
+  const { searchNestedProperties } = options;
+
+  if (
+    property.label.toLocaleLowerCase("en-US") ===
+    filter.label.toLocaleLowerCase("en-US")
+  ) {
+    let isFound = property.values.some((value) =>
+      value.content
+        .toLocaleLowerCase("en-US")
+        .includes(filter.value.toLocaleLowerCase("en-US")),
+    );
+
+    if (!isFound && searchNestedProperties) {
+      isFound = property.properties.some((property) =>
+        filterProperties(property, filter, { searchNestedProperties: true }),
+      );
+    }
+
+    return isFound;
+  }
+  return false;
 }
