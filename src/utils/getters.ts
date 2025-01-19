@@ -95,3 +95,24 @@ export function getPropertyValueByLabel(
 
   return null;
 }
+
+export function getAllPropertyLabels(
+  properties: Array<Property>,
+  options: PropertyOptions = DEFAULT_OPTIONS,
+): Array<string> {
+  const { searchNestedProperties } = options;
+  const labels = new Set<string>();
+
+  for (const property of properties) {
+    labels.add(property.label);
+
+    if (property.properties.length > 0 && searchNestedProperties) {
+      const nestedLabels = getAllPropertyLabels(property.properties);
+      for (const label of nestedLabels) {
+        labels.add(label);
+      }
+    }
+  }
+
+  return [...labels];
+}
