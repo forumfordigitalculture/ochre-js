@@ -1728,9 +1728,12 @@ async function parseWebpage(
 
   let displayedInHeader = true;
   let width: "default" | "full" | "large" = "default";
+  let variant: "default" | "no-background" = "default";
 
   const webpageSubProperties = webpageProperties.find(
-    (property) => property.label === "presentation",
+    (property) =>
+      property.label === "presentation" &&
+      property.values[0]?.content === "page",
   )?.properties;
 
   if (webpageSubProperties) {
@@ -1747,6 +1750,40 @@ async function parseWebpage(
     if (widthProperty) {
       width = widthProperty.content as "default" | "full" | "large";
     }
+
+    const variantProperty = webpageSubProperties.find(
+      (property) => property.label === "variant",
+    )?.values[0];
+    if (variantProperty) {
+      variant = variantProperty.content as "default" | "no-background";
+    }
+  }
+
+  const cssStyleSubProperties = webpageProperties.find(
+    (property) =>
+      property.label === "presentation" &&
+      property.values[0]?.content === "css",
+  )?.properties;
+  const cssStyles: Array<Style> = [];
+  if (cssStyleSubProperties) {
+    for (const property of cssStyleSubProperties) {
+      cssStyles.push({
+        label: property.label,
+        value: property.values[0]!.content,
+      });
+    }
+  }
+
+  const tailwindStyleSubProperties = webpageProperties.find(
+    (property) =>
+      property.label === "presentation" &&
+      property.values[0]?.content === "tailwind",
+  )?.properties;
+  const tailwindClasses: Array<string> = [];
+  if (tailwindStyleSubProperties) {
+    for (const property of tailwindStyleSubProperties) {
+      tailwindClasses.push(property.values[0]!.content);
+    }
   }
 
   return {
@@ -1756,12 +1793,13 @@ async function parseWebpage(
     properties: {
       displayedInHeader,
       width,
+      variant,
       backgroundImageUrl:
         imageLink ?
           `https://ochre.lib.uchicago.edu/ochre?uuid=${imageLink.uuid}&preview`
         : null,
-      cssStyles: [],
-      tailwindClasses: [],
+      cssStyles,
+      tailwindClasses,
     },
     webpages,
   };
@@ -1831,6 +1869,7 @@ function parseWebsiteProperties(
   let isHeaderDisplayed = true;
   let isFooterDisplayed = true;
   let isSidebarDisplayed = false;
+  let searchCollectionUuid: string | null = null;
 
   const headerProperty = websiteProperties.find(
     (property) => property.label === "navbar-visible",
@@ -1853,6 +1892,13 @@ function parseWebsiteProperties(
     isSidebarDisplayed = sidebarProperty.content === "Yes";
   }
 
+  const collectionSearchProperty = websiteProperties.find(
+    (property) => property.label === "search-collection",
+  )?.values[0];
+  if (collectionSearchProperty) {
+    searchCollectionUuid = collectionSearchProperty.uuid;
+  }
+
   const {
     type: validatedType,
     status: validatedStatus,
@@ -1866,6 +1912,7 @@ function parseWebsiteProperties(
     isHeaderDisplayed,
     isFooterDisplayed,
     isSidebarDisplayed,
+    searchCollectionUuid,
     logoUrl:
       logoUuid !== null ?
         `https://ochre.lib.uchicago.edu/ochre?uuid=${logoUuid}&load`
@@ -1899,11 +1946,55 @@ export async function parseWebsite(
 
   const pages = await parseWebpages(resources);
 
-  const globalElements: Array<WebElement> = [];
-  // const sidebar = resources.find((resource) => resource.slug === "sidebar");
-  // if (sidebar) {
-  //   globalElements.push(parseResource(sidebar) );
-  // }
+  const sidebarElements: Array<WebElement> = [];
+  const sidebar = resources.find((resource) => {
+    const resourceProperties =
+      resource.properties ?
+        parseProperties(
+          Array.isArray(resource.properties.property) ?
+            resource.properties.property
+          : [resource.properties.property],
+        )
+      : [];
+    return resourceProperties.some(
+      (property) =>
+        property.label === "presentation" &&
+        property.values[0]?.content === "element" &&
+        property.properties[0]?.label === "component" &&
+        property.properties[0]?.values[0]?.content === "sidebar",
+    );
+  });
+  if (sidebar) {
+    const sidebarResources =
+      sidebar.resource ?
+        Array.isArray(sidebar.resource) ?
+          sidebar.resource
+        : [sidebar.resource]
+      : [];
+
+    for (const resource of sidebarResources) {
+      const sidebarResourceProperties =
+        resource.properties ?
+          parseProperties(
+            Array.isArray(resource.properties.property) ?
+              resource.properties.property
+            : [resource.properties.property],
+          )
+        : [];
+
+      const element = await parseWebElement(
+        resource,
+        sidebarResourceProperties.find(
+          (property) =>
+            property.label === "presentation" &&
+            property.values[0]?.content === "element",
+        )?.properties ?? [],
+      );
+      if (element) {
+        sidebarElements.push(element);
+      }
+    }
+  }
 
   return {
     uuid: websiteTree.uuid,
@@ -1926,7 +2017,7 @@ export async function parseWebsite(
       : [],
     license: parseLicense(websiteTree.availability),
     pages,
-    globalElements,
+    sidebarElements,
     properties,
   };
 }

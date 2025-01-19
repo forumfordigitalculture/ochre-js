@@ -29,9 +29,6 @@ export async function fetchWebsite(abbreviation: string) {
       data.result.ochre.metadata.project?.identification.website ?? null,
     );
 
-    // eslint-disable-next-line no-console
-    console.log("Website", website);
-
     return website;
   } catch (error) {
     console.error(error);

@@ -1,6 +1,6 @@
 {
   "name": "@uchicago/ochre",
-  "version": "0.1.0",
+  "version": "0.1.6",
   "description": "Node.js library for working with OCHRE (Online Cultural and Historical Research Environment) data",
   "keywords": [
     "ochre",
@@ -51,7 +51,7 @@
     "ci": "pnpm run build && pnpm run check-format && pnpm run check-exports && pnpm run lint && pnpm run test",
     "lint": "eslint . && tsc",
     "test": "vitest run",
-    "format": "prettier --write .",
+    "format": "prettier --write --list-different .",
     "check-format": "prettier --check .",
     "check-exports": "attw --pack .",
     "local-release": "pnpm install --frozen-lockfile && changeset version && changeset publish"

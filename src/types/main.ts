@@ -341,7 +341,7 @@ export type Website = {
   creators: Array<Person>;
   license: License | null;
   pages: Array<Webpage>;
-  globalElements: Array<WebElement>;
+  sidebarElements: Array<WebElement>;
   properties: WebsiteProperties;
 };
 
@@ -360,6 +360,7 @@ export type WebsiteProperties = {
   isHeaderDisplayed: boolean;
   isFooterDisplayed: boolean;
   isSidebarDisplayed: boolean;
+  searchCollectionUuid: string | null;
   logoUrl: string | null;
 };
 
@@ -374,6 +375,7 @@ export type Webpage = {
 export type WebpageProperties = {
   displayedInHeader: boolean;
   width: "full" | "large" | "default";
+  variant: "default" | "no-background";
   backgroundImageUrl: string | null;
   cssStyles: Array<Style>;
   tailwindClasses: Array<string>;
