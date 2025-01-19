@@ -126,9 +126,12 @@ export function filterProperties(
 ) {
   const { searchNestedProperties } = options;
 
+  const isAllFields = filter.label.toLocaleLowerCase("en-US") === "all fields";
+
   if (
+    isAllFields ||
     property.label.toLocaleLowerCase("en-US") ===
-    filter.label.toLocaleLowerCase("en-US")
+      filter.label.toLocaleLowerCase("en-US")
   ) {
     let isFound = property.values.some((value) =>
       value.content
@@ -144,5 +147,6 @@ export function filterProperties(
 
     return isFound;
   }
+
   return false;
 }
