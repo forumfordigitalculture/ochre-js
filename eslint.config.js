@@ -28,6 +28,9 @@ export default antfu({
       ],
     },
   },
+  unicorn: {
+    allowArray: true,
+  },
   rules: {
     "unicorn/filename-case": [
       "error",
@@ -36,6 +39,13 @@ export default antfu({
         ignore: ["README.md", "CONTRIBUTING.md", "CHANGELOG.md", "LICENSE"],
       },
     ],
+    "unicorn/better-regex": "error",
+    "unicorn/prevent-abbreviations": "off",
+    "unicorn/no-nested-ternary": "off",
+    "unicorn/no-null": "off",
+    "unicorn/no-negated-condition": "off",
+    "unicorn/no-thenable": "off",
+    "unicorn/prefer-ternary": "off",
     "no-console": ["warn"],
     "antfu/no-top-level-await": ["off"],
     "node/prefer-global/process": ["off"],
