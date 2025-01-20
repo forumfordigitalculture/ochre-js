@@ -3,19 +3,21 @@
     /* Base Options: */
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "target": "es2023",
+    "target": "ES2024",
     "allowJs": true,
     "resolveJsonModule": true,
     "moduleDetection": "force",
     "isolatedModules": true,
     "verbatimModuleSyntax": true,
+
     /* Strictness */
     "strict": true,
     "noUncheckedIndexedAccess": true,
     "noImplicitOverride": true,
+
     /* If transpiling with TypeScript: */
     "module": "NodeNext",
-    "lib": ["es2023"],
+    "lib": ["ES2024"],
     "noEmit": true,
     "declaration": true,
     "declarationDir": "./dist/types"

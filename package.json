@@ -21,20 +21,25 @@
     }
   },
   "types": "./dist/index.d.ts",
-  "homepage": "https://github.com/UChicago-Forum-for-Digital-Culture/ochre-node",
+  "homepage": "https://github.com/forumfordigitalculture/ochre-js",
   "bugs": {
-    "url": "https://github.com/UChicago-Forum-for-Digital-Culture/ochre-node/issues"
+    "url": "https://github.com/forumfordigitalculture/ochre-js/issues"
   },
   "author": "Firat Ciftci <firatciftci@uchicago.edu> (https://digitalculture.uchicago.edu)",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/UChicago-Forum-for-Digital-Culture/ochre-node.git"
+    "url": "git+https://github.com/forumfordigitalculture/ochre-js.git"
   },
   "license": "MIT",
   "files": [
     "dist"
   ],
   "type": "module",
+  "dependencies": {
+    "@types/node": "^22.10.7",
+    "iso-639-3": "^3.0.1",
+    "zod": "^3.24.1"
+  },
   "devDependencies": {
     "@antfu/eslint-config": "^3.14.0",
     "@arethetypeswrong/cli": "^0.17.3",
@@ -56,10 +61,5 @@
     "check-exports": "attw --pack .",
     "local-release": "pnpm install --frozen-lockfile && changeset version && changeset publish"
   },
-  "packageManager": "pnpm@9.15.4",
-  "dependencies": {
-    "@types/node": "^22.10.7",
-    "iso-639-3": "^3.0.1",
-    "zod": "^3.24.1"
-  }
+  "packageManager": "pnpm@9.15.4"
 }
