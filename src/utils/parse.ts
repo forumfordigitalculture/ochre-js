@@ -1777,12 +1777,14 @@ async function parseWebpage(
   const tailwindStyleSubProperties = webpageProperties.find(
     (property) =>
       property.label === "presentation" &&
-      property.values[0]?.content === "tailwind",
+      property.values[0]!.content === "tailwind",
   )?.properties;
   const tailwindClasses: Array<string> = [];
   if (tailwindStyleSubProperties) {
     for (const property of tailwindStyleSubProperties) {
-      tailwindClasses.push(property.values[0]!.content);
+      const tailwindPrefix = property.label;
+      const tailwindValue = property.values[0]!.content;
+      tailwindClasses.push(`${tailwindPrefix}-${tailwindValue}`);
     }
   }
 
