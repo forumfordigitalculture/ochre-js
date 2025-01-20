@@ -1727,7 +1727,7 @@ async function parseWebpage(
     : [];
 
   let displayedInHeader = true;
-  let width: "default" | "full" | "large" = "default";
+  let width: "default" | "full" | "large" | "narrow" = "default";
   let variant: "default" | "no-background" = "default";
 
   const webpageSubProperties = webpageProperties.find(
@@ -1748,7 +1748,7 @@ async function parseWebpage(
       (property) => property.label === "width",
     )?.values[0];
     if (widthProperty) {
-      width = widthProperty.content as "default" | "full" | "large";
+      width = widthProperty.content as "default" | "full" | "large" | "narrow";
     }
 
     const variantProperty = webpageSubProperties.find(

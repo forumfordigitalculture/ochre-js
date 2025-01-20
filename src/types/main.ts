@@ -374,7 +374,7 @@ export type Webpage = {
 
 export type WebpageProperties = {
   displayedInHeader: boolean;
-  width: "full" | "large" | "default";
+  width: "full" | "large" | "narrow" | "default";
   variant: "default" | "no-background";
   backgroundImageUrl: string | null;
   cssStyles: Array<Style>;
