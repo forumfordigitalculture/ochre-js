@@ -3,6 +3,32 @@ import { fetchByUuid } from "../fetchers/generic.js";
 import { parseMetadata, parseResource } from "../parse.js";
 import { parseFakeString } from "../string.js";
 
+/**
+ * Fetches and parses a resource from the OCHRE API
+ *
+ * @param uuid - The UUID of the resource to fetch
+ * @returns Object containing the parsed resource and its metadata, or null if the fetch/parse fails
+ *
+ * @example
+ * ```ts
+ * const result = await fetchResource("123e4567-e89b-12d3-a456-426614174000");
+ * if (result === null) {
+ *   console.error("Failed to fetch resource");
+ *   return;
+ * }
+ * const { metadata, item } = result;
+ * console.log(`Fetched resource: ${item.identification.label}`);
+ * ```
+ *
+ * @remarks
+ * The returned resource includes:
+ * - Full resource metadata
+ * - Associated documents and images
+ * - Links and reverse links
+ * - Creator information
+ * - Notes and bibliographic references
+ * - Properties and nested resources
+ */
 export async function fetchResource(uuid: string) {
   try {
     const [error, dataRaw] = await fetchByUuid(uuid);

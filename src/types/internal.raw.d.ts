@@ -1,27 +1,48 @@
 import type { Language } from "iso-639-3";
 
+/**
+ * Raw string value that can be a string, number, or boolean
+ */
 export type FakeString = string | number | boolean;
 
+/**
+ * Text rendering options for string content
+ */
 export type RenderOption = "bold" | "italic" | "underline";
 
+/**
+ * Whitespace handling options for string content
+ */
 export type WhitespaceOption = "newline" | "trailing" | "leading";
 
+/**
+ * Raw content item with rendering and whitespace options
+ */
 export type OchreStringItemContent = {
   rend?: string; // "bold" | "italic" | "underline" (space separated)
   whitespace?: string; // "newline" | "trailing" | "leading" (space separated)
   content: FakeString;
 };
 
+/**
+ * Raw string item with language metadata
+ */
 export type OchreStringItem = {
   string: FakeString | OchreStringItemContent | Array<OchreStringItemContent>;
   lang?: Language["iso6393"]; // 3 character code (zxx = "a.k.a.")
   languages?: string; // 3 character codes, semicolon separated
 };
 
+/**
+ * Container for raw string content
+ */
 export type OchreStringContent = {
   content: FakeString | OchreStringItem | Array<OchreStringItem>;
 };
 
+/**
+ * Rich text content item with formatting and language metadata
+ */
 export type OchreStringRichTextItemContent = {
   content: FakeString;
   title?: FakeString;
@@ -30,12 +51,18 @@ export type OchreStringRichTextItemContent = {
   rend?: string; // "bold" | "italic" | "underline"  (space separated)
 };
 
+/**
+ * Annotated rich text item with links
+ */
 export type OchreStringRichTextItemAnnotation = {
   annotation: string; // UUID
   string: FakeString;
   links: OchreLink | Array<OchreLink>;
 };
 
+/**
+ * Union type for different rich text item formats
+ */
 export type OchreStringRichTextItem =
   | FakeString
   | OchreStringRichTextItemContent
@@ -50,12 +77,18 @@ export type OchreStringRichTextItem =
     }
   | OchreStringRichTextItemAnnotation;
 
+/**
+ * Container for rich text content with language metadata
+ */
 export type OchreStringRichText = {
   string: FakeString | OchreStringRichTextItem | Array<OchreStringRichTextItem>;
   title?: FakeString;
   lang?: Language["iso6393"]; // 3 character code (zxx = "a.k.a.")
 };
 
+/**
+ * Raw data structure corresponding to the parsed Data type
+ */
 export type OchreData = {
   ochre: {
     uuid: string;
@@ -74,6 +107,9 @@ export type OchreData = {
   );
 };
 
+/**
+ * Raw metadata structure corresponding to the parsed Metadata type
+ */
 export type OchreMetadata = {
   identifier: OchreStringContent;
   item?: {
@@ -91,6 +127,9 @@ export type OchreMetadata = {
   description: OchreStringContent;
 };
 
+/**
+ * Raw tree structure corresponding to the parsed Tree type
+ */
 export type OchreTree = {
   uuid: string;
   publicationDateTime: string; // YYYY-MM-DDThh:mm:ssZ
@@ -109,6 +148,9 @@ export type OchreTree = {
   properties?: { property: OchreProperty | Array<OchreProperty> };
 };
 
+/**
+ * Raw set structure corresponding to the parsed Set type
+ */
 export type OchreSet = {
   uuid: string;
   publicationDateTime: string; // YYYY-MM-DDThh:mm:ssZ
@@ -126,6 +168,9 @@ export type OchreSet = {
     | { concept: OchreConcept | Array<OchreConcept> };
 };
 
+/**
+ * Raw resource structure corresponding to the parsed Resource type
+ */
 export type OchreResource = {
   uuid: string;
   publicationDateTime: string; // YYYY-MM-DDThh:mm:ssZ
@@ -157,11 +202,17 @@ export type OchreResource = {
   resource?: OchreNestedResource | Array<OchreNestedResource>;
 };
 
+/**
+ * Raw nested resource structure corresponding to the parsed NestedResource type
+ */
 export type OchreNestedResource = Omit<
   OchreResource,
   "context" | "availability" | "copyright"
 >;
 
+/**
+ * Raw spatial unit structure corresponding to the parsed SpatialUnit type
+ */
 export type OchreSpatialUnit = {
   uuid: string;
   publicationDateTime?: string; // YYYY-MM-DDThh:mm:ssZ
@@ -178,6 +229,9 @@ export type OchreSpatialUnit = {
   observation?: OchreObservation;
 };
 
+/**
+ * Raw nested spatial unit structure corresponding to the parsed NestedSpatialUnit type
+ */
 export type OchreNestedSpatialUnit = Omit<
   OchreSpatialUnit,
   "context" | "availability" | "observations" | "events"
@@ -185,6 +239,9 @@ export type OchreNestedSpatialUnit = Omit<
   properties?: { property: OchreProperty | Array<OchreProperty> };
 };
 
+/**
+ * Raw concept structure corresponding to the parsed Concept type
+ */
 export type OchreConcept = {
   uuid: string;
   publicationDateTime: string; // YYYY-MM-DDThh:mm:ssZ
@@ -197,8 +254,14 @@ export type OchreConcept = {
   };
 };
 
+/**
+ * Raw nested concept structure corresponding to the parsed NestedConcept type
+ */
 export type OchreNestedConcept = Omit<OchreConcept, "context" | "availability">;
 
+/**
+ * Raw property value structure corresponding to the parsed PropertyValue type
+ */
 export type OchrePropertyValue = OchreStringContent & {
   uuid?: string;
   publicationDateTime?: string; // YYYY-MM-DDThh:mm:ssZ
@@ -206,6 +269,9 @@ export type OchrePropertyValue = OchreStringContent & {
   category?: string;
 };
 
+/**
+ * Raw property structure corresponding to the parsed Property type
+ */
 export type OchreProperty = {
   label: OchreStringContent & { uuid: string };
   value?: OchrePropertyValue | Array<OchrePropertyValue>;
@@ -213,6 +279,9 @@ export type OchreProperty = {
   property?: OchreProperty | Array<OchreProperty>;
 };
 
+/**
+ * Raw identification structure corresponding to the parsed Identification type
+ */
 export type OchreIdentification = {
   label: OchreStringContent;
   abbreviation?: OchreStringContent;
@@ -224,15 +293,24 @@ export type OchreIdentification = {
   website?: string;
 };
 
+/**
+ * Raw license structure corresponding to the parsed License type
+ */
 export type OchreLicense = {
   license: { content: string; target: string } | string;
 };
 
+/**
+ * Raw language structure for specifying content languages
+ */
 export type OchreLanguage = {
   default?: boolean;
   content: string; // 3 character code
 };
 
+/**
+ * Raw link item structure for various linked content types
+ */
 export type OchreLinkItem = {
   uuid: string;
   publicationDateTime?: string; // YYYY-MM-DDThh:mm:ssZ
@@ -246,6 +324,9 @@ export type OchreLinkItem = {
   width?: number;
 };
 
+/**
+ * Raw link structure corresponding to the parsed Link type
+ */
 export type OchreLink =
   | { resource: OchreLinkItem | Array<OchreLinkItem> }
   | { concept: OchreLinkItem | Array<OchreLinkItem> }
@@ -255,6 +336,9 @@ export type OchreLink =
   | { epigraphicUnit: OchreLinkItem | Array<OchreLinkItem> }
   | { bibliography: OchreBibliography | Array<OchreBibliography> };
 
+/**
+ * Raw image structure corresponding to the parsed Image type
+ */
 export type OchreImage = {
   publicationDateTime?: string; // YYYY-MM-DDThh:mm:ssZ
   identification?: OchreIdentification;
@@ -263,6 +347,9 @@ export type OchreImage = {
   content?: FakeString;
 };
 
+/**
+ * Raw bibliography structure corresponding to the parsed Bibliography type
+ */
 export type OchreBibliography = {
   uuid: string;
   publicationDateTime?: string; // YYYY-MM-DDThh:mm:ssZ
@@ -330,6 +417,9 @@ export type OchreBibliography = {
   properties?: { property: OchreProperty | Array<OchreProperty> };
 };
 
+/**
+ * Raw note structure corresponding to the parsed Note type
+ */
 export type OchreNote =
   | string
   | {
@@ -337,6 +427,9 @@ export type OchreNote =
       content: OchreStringRichText | Array<OchreStringRichText>;
     };
 
+/**
+ * Raw period structure corresponding to the parsed Period type
+ */
 export type OchrePeriod = {
   uuid: string;
   publicationDateTime?: string; // YYYY-MM-DDThh:mm:ssZ
@@ -344,6 +437,9 @@ export type OchrePeriod = {
   identification: OchreIdentification;
 };
 
+/**
+ * Raw image map area structure corresponding to the parsed ImageMapArea type
+ */
 export type OchreImageMapArea = {
   uuid: string;
   publicationDateTime?: string; // YYYY-MM-DDThh:mm:ssZ
@@ -353,17 +449,26 @@ export type OchreImageMapArea = {
   coords: string; // comma separated list of numbers
 };
 
+/**
+ * Raw image map structure corresponding to the parsed ImageMap type
+ */
 export type OchreImageMap = {
   area: OchreImageMapArea | Array<OchreImageMapArea>;
   width: number;
   height: number;
 };
 
+/**
+ * Raw context structure corresponding to the parsed Context type
+ */
 export type OchreContext = {
   context: OchreContextValue | Array<OchreContextValue>;
   displayPath: string;
 };
 
+/**
+ * Raw context value structure containing tree, project and spatial unit information
+ */
 export type OchreContextValue = {
   tree: OchreContextItem;
   project: OchreContextItem;
@@ -371,6 +476,9 @@ export type OchreContextValue = {
   displayPath: string;
 };
 
+/**
+ * Raw context item structure corresponding to the parsed ContextItem type
+ */
 export type OchreContextItem = {
   uuid: string;
   publicationDateTime?: string; // YYYY-MM-DDThh:mm:ssZ
@@ -378,6 +486,9 @@ export type OchreContextItem = {
   content: FakeString;
 };
 
+/**
+ * Raw person structure corresponding to the parsed Person type
+ */
 export type OchrePerson = {
   uuid: string;
   publicationDateTime?: string; // YYYY-MM-DDThh:mm:ssZ
@@ -387,6 +498,9 @@ export type OchrePerson = {
   content?: FakeString | null;
 };
 
+/**
+ * Raw observation structure corresponding to the parsed Observation type
+ */
 export type OchreObservation = {
   observationNo: number;
   date?: string; // YYYY-MM-DD
@@ -396,6 +510,9 @@ export type OchreObservation = {
   properties?: { property: OchreProperty | Array<OchreProperty> };
 };
 
+/**
+ * Raw coordinates structure corresponding to the parsed Coordinates type
+ */
 export type OchreCoordinates = {
   latitude: number;
   longitude: number;
@@ -410,6 +527,9 @@ export type OchreCoordinates = {
   };
 };
 
+/**
+ * Raw event structure corresponding to the parsed Event type
+ */
 export type OchreEvent = {
   dateTime?: string; // YYYY-MM-DD
   agent?: {
@@ -419,6 +539,9 @@ export type OchreEvent = {
   label: OchreStringContent;
 };
 
+/**
+ * Raw interpretation structure corresponding to the parsed Interpretation type
+ */
 export type OchreInterpretation = {
   date: string; // YYYY-MM-DD
   interpretationNo: number;

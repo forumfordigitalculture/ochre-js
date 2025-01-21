@@ -75,6 +75,9 @@ import {
   trimEndLineBreaks,
 } from "../utils/string.js";
 
+/**
+ * Schema for validating website properties
+ */
 const websiteSchema = z.object({
   type: z.enum(
     [
@@ -103,6 +106,9 @@ const websiteSchema = z.object({
   ),
 });
 
+/**
+ * Valid component types for web elements
+ */
 const componentSchema = z.enum(
   [
     "annotated-document",
@@ -128,6 +134,12 @@ const componentSchema = z.enum(
   { message: "Invalid component" },
 );
 
+/**
+ * Parses raw identification data into the standardized Identification type
+ *
+ * @param identification - Raw identification data from OCHRE format
+ * @returns Parsed Identification object with label and abbreviation
+ */
 export function parseIdentification(
   identification: OchreIdentification,
 ): Identification {
@@ -156,7 +168,13 @@ export function parseIdentification(
   }
 }
 
-function parseLanguages(
+/**
+ * Parses raw language data into an array of language codes
+ *
+ * @param language - Raw language data, either single or array
+ * @returns Array of language codes as strings
+ */
+export function parseLanguages(
   language: OchreLanguage | Array<OchreLanguage>,
 ): Array<string> {
   if (Array.isArray(language)) {
@@ -166,6 +184,12 @@ function parseLanguages(
   }
 }
 
+/**
+ * Parses raw metadata into the standardized Metadata type
+ *
+ * @param metadata - Raw metadata from OCHRE format
+ * @returns Parsed Metadata object
+ */
 export function parseMetadata(metadata: OchreMetadata): Metadata {
   let identification: Identification = {
     label: "",
@@ -223,6 +247,12 @@ export function parseMetadata(metadata: OchreMetadata): Metadata {
   };
 }
 
+/**
+ * Parses raw context item data into the standardized ContextItem type
+ *
+ * @param contextItem - Raw context item data from OCHRE format
+ * @returns Parsed ContextItem object
+ */
 function parseContextItem(contextItem: OchreContextItem): ContextItem {
   return {
     uuid: contextItem.uuid,
@@ -235,7 +265,13 @@ function parseContextItem(contextItem: OchreContextItem): ContextItem {
   };
 }
 
-function parseContext(context: OchreContext): Context {
+/**
+ * Parses raw context data into the standardized Context type
+ *
+ * @param context - Raw context data from OCHRE format
+ * @returns Parsed Context object
+ */
+export function parseContext(context: OchreContext): Context {
   const contexts =
     Array.isArray(context.context) ? context.context : [context.context];
 
@@ -265,7 +301,13 @@ function parseContext(context: OchreContext): Context {
   return returnContexts;
 }
 
-function parseLicense(license: OchreLicense): License | null {
+/**
+ * Parses raw license data into the standardized License type
+ *
+ * @param license - Raw license data from OCHRE format
+ * @returns Parsed License object or null if invalid
+ */
+export function parseLicense(license: OchreLicense): License | null {
   if (typeof license.license === "string") {
     return null;
   }
@@ -276,7 +318,13 @@ function parseLicense(license: OchreLicense): License | null {
   };
 }
 
-function parsePersons(persons: Array<OchrePerson>): Array<Person> {
+/**
+ * Parses raw person data into the standardized Person type
+ *
+ * @param persons - Raw person data from OCHRE format
+ * @returns Array of parsed Person objects
+ */
+export function parsePersons(persons: Array<OchrePerson>): Array<Person> {
   const returnPersons: Array<Person> = [];
   for (const person of persons) {
     returnPersons.push({
@@ -298,7 +346,13 @@ function parsePersons(persons: Array<OchrePerson>): Array<Person> {
   return returnPersons;
 }
 
-function parseLink(linkRaw: OchreLink): Array<Link> {
+/**
+ * Parses an array of raw links into standardized Link objects
+ *
+ * @param linkRaw - Raw OCHRE link
+ * @returns Parsed Link object
+ */
+export function parseLink(linkRaw: OchreLink): Array<Link> {
   const links =
     "resource" in linkRaw ? linkRaw.resource
     : "concept" in linkRaw ? linkRaw.concept
@@ -375,7 +429,13 @@ function parseLink(linkRaw: OchreLink): Array<Link> {
   return returnLinks;
 }
 
-function parseLinks(links: Array<OchreLink>): Array<Link> {
+/**
+ * Parses an array of raw links into standardized Link objects
+ *
+ * @param links - Array of raw OCHRE links
+ * @returns Array of parsed Link objects
+ */
+export function parseLinks(links: Array<OchreLink>): Array<Link> {
   const returnLinks: Array<Link> = [];
 
   for (const link of links) {
@@ -385,7 +445,14 @@ function parseLinks(links: Array<OchreLink>): Array<Link> {
   return returnLinks;
 }
 
-function parseDocument(
+/**
+ * Parses raw document content into a standardized Document structure
+ *
+ * @param document - Raw document content in OCHRE format
+ * @param language - Language code to use for content selection (defaults to "eng")
+ * @returns Parsed Document object with content and footnotes
+ */
+export function parseDocument(
   document: OchreStringRichText | Array<OchreStringRichText>,
   language = "eng",
 ): Document {
@@ -420,7 +487,13 @@ function parseDocument(
   return { content: returnString, footnotes };
 }
 
-function parseImage(image: OchreImage): Image | null {
+/**
+ * Parses raw image data into a standardized Image structure
+ *
+ * @param image - Raw image data in OCHRE format
+ * @returns Parsed Image object or null if invalid
+ */
+export function parseImage(image: OchreImage): Image | null {
   return {
     publicationDateTime:
       image.publicationDateTime != null ?
@@ -441,7 +514,17 @@ function parseImage(image: OchreImage): Image | null {
   };
 }
 
-function parseNotes(notes: Array<OchreNote>, language = "eng"): Array<Note> {
+/**
+ * Parses raw notes into standardized Note objects
+ *
+ * @param notes - Array of raw notes in OCHRE format
+ * @param language - Language code for content selection (defaults to "eng")
+ * @returns Array of parsed Note objects
+ */
+export function parseNotes(
+  notes: Array<OchreNote>,
+  language = "eng",
+): Array<Note> {
   const returnNotes: Array<Note> = [];
   for (const note of notes) {
     if (typeof note === "string") {
@@ -499,7 +582,13 @@ function parseNotes(notes: Array<OchreNote>, language = "eng"): Array<Note> {
   return returnNotes;
 }
 
-function parseCoordinates(coordinates: OchreCoordinates): Coordinates {
+/**
+ * Parses raw coordinates data into a standardized Coordinates structure
+ *
+ * @param coordinates - Raw coordinates data in OCHRE format
+ * @returns Parsed Coordinates object
+ */
+export function parseCoordinates(coordinates: OchreCoordinates): Coordinates {
   return {
     latitude: coordinates.latitude,
     longitude: coordinates.longitude,
@@ -511,7 +600,13 @@ function parseCoordinates(coordinates: OchreCoordinates): Coordinates {
   };
 }
 
-function parseObservation(observation: OchreObservation): Observation {
+/**
+ * Parses a raw observation into a standardized Observation structure
+ *
+ * @param observation - Raw observation data in OCHRE format
+ * @returns Parsed Observation object
+ */
+export function parseObservation(observation: OchreObservation): Observation {
   return {
     number: observation.observationNo,
     date: observation.date != null ? new Date(observation.date) : null,
@@ -548,7 +643,13 @@ function parseObservation(observation: OchreObservation): Observation {
   };
 }
 
-function parseObservations(
+/**
+ * Parses an array of raw observations into standardized Observation objects
+ *
+ * @param observations - Array of raw observations in OCHRE format
+ * @returns Array of parsed Observation objects
+ */
+export function parseObservations(
   observations: Array<OchreObservation>,
 ): Array<Observation> {
   const returnObservations: Array<Observation> = [];
@@ -558,7 +659,13 @@ function parseObservations(
   return returnObservations;
 }
 
-function parseEvents(events: Array<OchreEvent>): Array<Event> {
+/**
+ * Parses an array of raw events into standardized Event objects
+ *
+ * @param events - Array of raw events in OCHRE format
+ * @returns Array of parsed Event objects
+ */
+export function parseEvents(events: Array<OchreEvent>): Array<Event> {
   const returnEvents: Array<Event> = [];
   for (const event of events) {
     returnEvents.push({
@@ -577,7 +684,14 @@ function parseEvents(events: Array<OchreEvent>): Array<Event> {
   return returnEvents;
 }
 
-function parseProperties(
+/**
+ * Parses raw properties into standardized Property objects
+ *
+ * @param properties - Array of raw properties in OCHRE format
+ * @param language - Language code for content selection (defaults to "eng")
+ * @returns Array of parsed Property objects
+ */
+export function parseProperties(
   properties: Array<OchreProperty>,
   language = "eng",
 ): Array<Property> {
@@ -622,7 +736,13 @@ function parseProperties(
   return returnProperties;
 }
 
-function parseInterpretations(
+/**
+ * Parses raw interpretations into standardized Interpretation objects
+ *
+ * @param interpretations - Array of raw interpretations in OCHRE format
+ * @returns Array of parsed Interpretation objects
+ */
+export function parseInterpretations(
   interpretations: Array<OchreInterpretation>,
 ): Array<Interpretation> {
   const returnInterpretations: Array<Interpretation> = [];
@@ -644,7 +764,13 @@ function parseInterpretations(
   return returnInterpretations;
 }
 
-function parseImageMap(imageMap: OchreImageMap): ImageMap {
+/**
+ * Parses raw image map data into a standardized ImageMap structure
+ *
+ * @param imageMap - Raw image map data in OCHRE format
+ * @returns Parsed ImageMap object
+ */
+export function parseImageMap(imageMap: OchreImageMap): ImageMap {
   const returnImageMap: ImageMap = {
     area: [],
     width: imageMap.width,
@@ -670,7 +796,13 @@ function parseImageMap(imageMap: OchreImageMap): ImageMap {
   return returnImageMap;
 }
 
-function parsePeriod(period: OchrePeriod): Period {
+/**
+ * Parses raw period data into a standardized Period structure
+ *
+ * @param period - Raw period data in OCHRE format
+ * @returns Parsed Period object
+ */
+export function parsePeriod(period: OchrePeriod): Period {
   return {
     uuid: period.uuid,
     publicationDateTime:
@@ -682,7 +814,13 @@ function parsePeriod(period: OchrePeriod): Period {
   };
 }
 
-function parsePeriods(periods: Array<OchrePeriod>): Array<Period> {
+/**
+ * Parses an array of raw periods into standardized Period objects
+ *
+ * @param periods - Array of raw periods in OCHRE format
+ * @returns Array of parsed Period objects
+ */
+export function parsePeriods(periods: Array<OchrePeriod>): Array<Period> {
   const returnPeriods: Array<Period> = [];
   for (const period of periods) {
     returnPeriods.push(parsePeriod(period));
@@ -690,6 +828,12 @@ function parsePeriods(periods: Array<OchrePeriod>): Array<Period> {
   return returnPeriods;
 }
 
+/**
+ * Parses raw bibliography data into a standardized Bibliography structure
+ *
+ * @param bibliography - Raw bibliography data in OCHRE format
+ * @returns Parsed Bibliography object
+ */
 export function parseBibliography(
   bibliography: OchreBibliography,
 ): Bibliography {
@@ -800,7 +944,13 @@ export function parseBibliography(
   };
 }
 
-function parseBibliographies(
+/**
+ * Parses an array of raw bibliographies into standardized Bibliography objects
+ *
+ * @param bibliographies - Array of raw bibliographies in OCHRE format
+ * @returns Array of parsed Bibliography objects
+ */
+export function parseBibliographies(
   bibliographies: Array<OchreBibliography>,
 ): Array<Bibliography> {
   const returnBibliographies: Array<Bibliography> = [];
@@ -810,6 +960,12 @@ function parseBibliographies(
   return returnBibliographies;
 }
 
+/**
+ * Parses a raw tree structure into a standardized Tree object
+ *
+ * @param tree - Raw tree data in OCHRE format
+ * @returns Parsed Tree object or null if invalid
+ */
 export function parseTree(tree: OchreTree): Tree | null {
   let creators: Array<Person> = [];
   if (tree.creators) {
@@ -878,6 +1034,12 @@ export function parseTree(tree: OchreTree): Tree | null {
   return returnTree;
 }
 
+/**
+ * Parses raw set data into a standardized Set structure
+ *
+ * @param set - Raw set data in OCHRE format
+ * @returns Parsed Set object
+ */
 export function parseSet(set: OchreSet): Set {
   let resources: Array<NestedResource> = [];
   let spatialUnits: Array<NestedSpatialUnit> = [];
@@ -936,6 +1098,12 @@ export function parseSet(set: OchreSet): Set {
   };
 }
 
+/**
+ * Parses raw resource data into a standardized Resource structure
+ *
+ * @param resource - Raw resource data in OCHRE format
+ * @returns Parsed Resource object
+ */
 export function parseResource(
   resource: OchreResource | OchreNestedResource,
   isNested = false,
@@ -1061,6 +1229,12 @@ export function parseResource(
   return returnResource;
 }
 
+/**
+ * Parses raw resource data into a standardized Resource structure
+ *
+ * @param resources - Raw resource data in OCHRE format
+ * @returns Parsed Resource object
+ */
 export function parseResources(
   resources: Array<OchreResource> | Array<OchreNestedResource>,
   isNested = false,
@@ -1075,6 +1249,13 @@ export function parseResources(
   return returnResources;
 }
 
+/**
+ * Parses raw spatial units into standardized SpatialUnit or NestedSpatialUnit objects
+ *
+ * @param spatialUnit - Raw spatial unit in OCHRE format
+ * @param isNested - Whether to parse as nested spatial units
+ * @returns Parsed SpatialUnit or NestedSpatialUnit object
+ */
 export function parseSpatialUnit(
   spatialUnit: OchreSpatialUnit | OchreNestedSpatialUnit,
   isNested = false,
@@ -1152,7 +1333,14 @@ export function parseSpatialUnit(
   return returnSpatialUnit;
 }
 
-function parseSpatialUnits<T extends boolean>(
+/**
+ * Parses an array of raw spatial units into standardized SpatialUnit or NestedSpatialUnit objects
+ *
+ * @param spatialUnits - Array of raw spatial units in OCHRE format
+ * @param isNested - Whether to parse as nested spatial units
+ * @returns Array of parsed SpatialUnit or NestedSpatialUnit objects
+ */
+export function parseSpatialUnits<T extends boolean>(
   spatialUnits: Array<
     T extends true ? OchreNestedSpatialUnit : OchreSpatialUnit
   >,
@@ -1175,6 +1363,13 @@ function parseSpatialUnits<T extends boolean>(
   return returnSpatialUnits;
 }
 
+/**
+ * Parses a raw concept into a standardized Concept or NestedConcept object
+ *
+ * @param concept - Raw concept data in OCHRE format
+ * @param isNested - Whether to parse as a nested concept
+ * @returns Parsed Concept or NestedConcept object
+ */
 export function parseConcept(
   concept: OchreConcept | OchreNestedConcept,
   isNested = false,
@@ -1224,6 +1419,13 @@ export function parseConcept(
   return returnConcept;
 }
 
+/**
+ * Parses raw webpage resources into standardized WebElement or Webpage objects
+ *
+ * @param webpageResources - Array of raw webpage resources in OCHRE format
+ * @param type - Type of resource to parse ("element" or "page")
+ * @returns Array of parsed WebElement or Webpage objects
+ */
 const parseWebpageResources = async <T extends "element" | "page">(
   webpageResources: Array<OchreResource>,
   type: T,
@@ -1269,7 +1471,14 @@ const parseWebpageResources = async <T extends "element" | "page">(
   return returnElements;
 };
 
-function parseConcepts(
+/**
+ * Parses raw concept data into standardized Concept or NestedConcept objects
+ *
+ * @param concepts - Array of raw concept data in OCHRE format
+ * @param isNested - Whether to parse as nested concepts
+ * @returns Array of parsed Concept or NestedConcept objects
+ */
+export function parseConcepts(
   concepts: Array<OchreConcept> | Array<OchreNestedConcept>,
   isNested = false,
 ): Array<Concept> | Array<NestedConcept> {
@@ -1283,6 +1492,13 @@ function parseConcepts(
   return returnConcepts;
 }
 
+/**
+ * Parses raw web element properties into a standardized WebElementComponent structure
+ *
+ * @param componentProperty - Raw component property data in OCHRE format
+ * @param elementResource - Raw element resource data in OCHRE format
+ * @returns Parsed WebElementComponent object
+ */
 async function parseWebElementProperties(
   componentProperty: Property,
   elementResource: OchreResource,
@@ -1617,6 +1833,13 @@ async function parseWebElementProperties(
   return properties as WebElementComponent;
 }
 
+/**
+ * Parses raw web element data into a standardized WebElement structure
+ *
+ * @param elementResource - Raw element resource data in OCHRE format
+ * @param elementProperties - Array of raw element properties in OCHRE format
+ * @returns Parsed WebElement object
+ */
 async function parseWebElement(
   elementResource: OchreResource,
   elementProperties: Array<Property>,
@@ -1682,6 +1905,12 @@ async function parseWebElement(
   };
 }
 
+/**
+ * Parses raw webpage data into a standardized Webpage structure
+ *
+ * @param webpageResource - Raw webpage resource data in OCHRE format
+ * @returns Parsed Webpage object
+ */
 async function parseWebpage(
   webpageResource: OchreResource,
 ): Promise<Webpage | null> {
@@ -1824,6 +2053,12 @@ async function parseWebpage(
   };
 }
 
+/**
+ * Parses raw webpage resources into an array of Webpage objects
+ *
+ * @param webpageResources - Array of raw webpage resources in OCHRE format
+ * @returns Array of parsed Webpage objects
+ */
 async function parseWebpages(
   webpageResources: Array<OchreResource>,
 ): Promise<Array<Webpage>> {
@@ -1841,6 +2076,12 @@ async function parseWebpages(
   return returnPages;
 }
 
+/**
+ * Parses raw website properties into a standardized WebsiteProperties structure
+ *
+ * @param properties - Array of raw website properties in OCHRE format
+ * @returns Parsed WebsiteProperties object
+ */
 function parseWebsiteProperties(
   properties: Array<OchreProperty>,
 ): WebsiteProperties {

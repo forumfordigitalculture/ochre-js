@@ -9,6 +9,10 @@ import type {
 import type { Footnote } from "../types/main.js";
 import { z } from "zod";
 
+/**
+ * Schema for validating and parsing render options
+ * @internal
+ */
 const renderOptionsSchema = z
   .string()
   .transform((str) => str.split(" "))
@@ -21,6 +25,11 @@ const renderOptionsSchema = z
       ] as const satisfies ReadonlyArray<RenderOption>),
     ),
   );
+
+/**
+ * Schema for validating and parsing whitespace options
+ * @internal
+ */
 const whitespaceSchema = z
   .string()
   .transform((str) => str.split(" "))
@@ -33,32 +42,65 @@ const whitespaceSchema = z
       ] as const satisfies ReadonlyArray<WhitespaceOption>),
     ),
   );
+
+/**
+ * Schema for validating email addresses
+ * @internal
+ */
 const emailSchema = z.string().email({ message: "Invalid email" });
+
+/**
+ * Schema for validating URLs
+ * @internal
+ */
 const urlSchema = z.string().refine((v) => (v ? isUrlValid(v) : false), {
   message: "Invalid URL",
 });
 
+/**
+ * Validates if a URL string matches a valid URL pattern
+ *
+ * @param url - The URL string to validate
+ * @returns True if URL is valid, false otherwise
+ * @internal
+ */
 function isUrlValid(url: string) {
   const pattern =
     // eslint-disable-next-line regexp/no-useless-quantifier, regexp/no-unused-capturing-group
-    /((([A-Za-z]{3,9}:(?:\/\/)?)(?:[\w$&+,:;=-]+@)?[\d.A-Za-z-]+(:\d+)?|(?:www.|[\w$&+,:;=-]+@)[\d.A-Za-z-]+)((?:\/[%+./~\w-]*)?\??[\w%&+.;=@-]*#?\w*)?)/;
+    /((([A-Za-z]{3,9}:(?:\/\/)?)(?:[\w$&+,:;=-]+@)?[\d.A-Za-z-]+(:\d+)?|(?:www.|[\w$&+,:;=-]+@)[\d.A-Za-z-]+)((?:\/[\w%+./~-]*)?\??[\w%&+.;=@-]*#?\w*)?)/;
 
   return !!pattern.test(url);
 }
 
+/**
+ * Finds a string item in an array by language code
+ *
+ * @param content - Array of string items to search
+ * @param language - Language code to search for
+ * @returns Matching string item or null if not found
+ * @internal
+ */
 function getStringItemByLanguage(
   content: Array<OchreStringItem>,
   language: string,
 ): OchreStringItem | null {
   const stringItemToFind = content.find((item) => item.lang === language);
-
-  if (stringItemToFind) {
-    return stringItemToFind;
-  } else {
-    return null;
-  }
+  return stringItemToFind || null;
 }
 
+/**
+ * Parses email addresses and URLs in a string into HTML links
+ *
+ * @param string - Input string to parse
+ * @returns String with emails and URLs converted to HTML links
+ *
+ * @example
+ * ```ts
+ * const parsed = parseEmailAndUrl("Contact us at info@example.com or visit www.example.com");
+ * // Returns: "Contact us at <ExternalLink href="mailto:info@example.com">info@example.com</ExternalLink>
+ * //          or visit <ExternalLink href="www.example.com">www.example.com</ExternalLink>"
+ * ```
+ */
 export function parseEmailAndUrl(string: string): string {
   const splitString = string.split(" ");
   const returnSplitString: Array<string> = [];
@@ -96,6 +138,14 @@ export function parseEmailAndUrl(string: string): string {
   return returnSplitString.join(" ");
 }
 
+/**
+ * Applies text rendering options (bold, italic, underline) to a string
+ *
+ * @param contentString - The string content to render
+ * @param renderString - Space-separated string of render options
+ * @returns String with markdown formatting applied
+ * @internal
+ */
 function parseRenderOptions(
   contentString: string,
   renderString: string,
@@ -129,6 +179,14 @@ function parseRenderOptions(
   return returnString.replaceAll("&#39;", "'");
 }
 
+/**
+ * Applies whitespace options to a string (newline, trailing, leading)
+ *
+ * @param contentString - The string content to modify
+ * @param whitespace - Space-separated string of whitespace options
+ * @returns String with whitespace modifications applied
+ * @internal
+ */
 function parseWhitespace(contentString: string, whitespace: string): string {
   let returnString = contentString;
 
@@ -160,6 +218,19 @@ function parseWhitespace(contentString: string, whitespace: string): string {
   return returnString.replaceAll("&#39;", "'");
 }
 
+/**
+ * Converts a FakeString (string|number|boolean) to a proper string
+ *
+ * @param string - FakeString value to convert
+ * @returns Converted string value
+ *
+ * @example
+ * ```ts
+ * parseFakeString(true); // Returns "Yes"
+ * parseFakeString(123); // Returns "123"
+ * parseFakeString("test"); // Returns "test"
+ * ```
+ */
 export function parseFakeString(string: FakeString): string {
   let returnString = "";
 
@@ -174,6 +245,12 @@ export function parseFakeString(string: FakeString): string {
   return returnString.replaceAll("&#39;", "'");
 }
 
+/**
+ * Parses an OchreStringItem into a formatted string
+ *
+ * @param item - OchreStringItem to parse
+ * @returns Formatted string with applied rendering and whitespace
+ */
 export function parseStringItem(item: OchreStringItem): string {
   let returnString = "";
 
@@ -218,44 +295,13 @@ export function parseStringItem(item: OchreStringItem): string {
   return returnString.replaceAll("&#39;", "'");
 }
 
-export function parseStringContent(
-  content: OchreStringContent,
-  language = "eng",
-): string {
-  switch (typeof content.content) {
-    case "string":
-    case "number":
-    case "boolean": {
-      return parseFakeString(content.content);
-    }
-    case "object": {
-      if (Array.isArray(content.content)) {
-        const stringItem = getStringItemByLanguage(content.content, language);
-
-        if (stringItem) {
-          return parseStringItem(stringItem);
-        } else {
-          const returnStringItem = content.content[0];
-          if (!returnStringItem) {
-            throw new Error(
-              `No string item found for language “${language}” in the following content:\n${JSON.stringify(
-                content.content,
-              )}.`,
-            );
-          }
-
-          return parseStringItem(returnStringItem);
-        }
-      } else {
-        return parseStringItem(content.content);
-      }
-    }
-    default: {
-      return String(content.content);
-    }
-  }
-}
-
+/**
+ * Parses rich text content into a formatted string with links and annotations
+ *
+ * @param item - Rich text item to parse
+ * @param footnotes - Optional array to collect footnotes during parsing
+ * @returns Formatted string with HTML/markdown elements
+ */
 export function parseStringDocumentItem(
   item: OchreStringRichTextItem,
   footnotes?: Array<Footnote>,
@@ -438,6 +484,18 @@ export function parseStringDocumentItem(
   return returnString.replaceAll("&#39;", "'");
 }
 
+/**
+ * Removes trailing line breaks from a string
+ *
+ * @param string - Input string to trim
+ * @returns String with trailing line breaks removed
+ *
+ * @example
+ * ```ts
+ * const trimmed = trimEndLineBreaks("Hello\n<br />\n<br />");
+ * // Returns: "Hello"
+ * ```
+ */
 export function trimEndLineBreaks(string: string): string {
   // trim "\n<br" from the end of the string
   const trimmedString = string.replaceAll(/^\n<br \/>|\n<br \/>$/g, "");
@@ -449,4 +507,49 @@ export function trimEndLineBreaks(string: string): string {
   }
 
   return trimmedString;
+}
+
+/**
+ * Parses raw string content into a formatted string
+ *
+ * @param content - Raw string content to parse
+ * @param language - Optional language code for content selection (defaults to "eng")
+ * @returns Parsed and formatted string
+ */
+export function parseStringContent(
+  content: OchreStringContent,
+  language = "eng",
+): string {
+  switch (typeof content.content) {
+    case "string":
+    case "number":
+    case "boolean": {
+      return parseFakeString(content.content);
+    }
+    case "object": {
+      if (Array.isArray(content.content)) {
+        const stringItem = getStringItemByLanguage(content.content, language);
+
+        if (stringItem) {
+          return parseStringItem(stringItem);
+        } else {
+          const returnStringItem = content.content[0];
+          if (!returnStringItem) {
+            throw new Error(
+              `No string item found for language “${language}” in the following content:\n${JSON.stringify(
+                content.content,
+              )}.`,
+            );
+          }
+
+          return parseStringItem(returnStringItem);
+        }
+      } else {
+        return parseStringItem(content.content);
+      }
+    }
+    default: {
+      return String(content.content);
+    }
+  }
 }

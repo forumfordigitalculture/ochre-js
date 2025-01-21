@@ -1,13 +1,15 @@
 # OCHRE SDK
 
-A TypeScript SDK for working with OCHRE (Online Cultural and Historical Research Environment) data.
+A JavaScript/TypeScript SDK for working with OCHRE (Online Cultural and Historical Research Environment) data.
 
 ## Installation
 
 ```bash
-pnpm add ochre-sdk
+pnpm add @uchicago/ochre
 or
-npm install ochre-sdk
+npm install @uchicago/ochre
+or
+bun install @uchicago/ochre
 ```
 
 ## Features
@@ -20,37 +22,36 @@ npm install ochre-sdk
 ## Usage
 
 ```typescript
-import { parseWebsite, parseMetadata, parseIdentification } from "ochre-sdk";
-// Parse OCHRE website data
-const website = await parseWebsite(websiteTree, projectName, websiteUrl);
-// Parse metadata
-const metadata = parseMetadata(ochreMetadata);
-// Parse identification
-const identification = parseIdentification(ochreIdentification);
+import { fetchWebsite, fetchResource, fetchSet } from "@uchicago/ochre";
+
+// Fetch and parse OCHRE website data
+const website = await fetchWebsite(abbreviation);
+
+// Fetch and parse OCHRE resource data
+const resource = await fetchResource(uuid);
+
+// Fetch and parse OCHRE set data
+const set = await fetchSet(uuid);
 ```
 
 ## API Reference
 
 ### Core Functions
 
-#### `parseWebsite(websiteTree: OchreTree, projectName: FakeString, website: FakeString | null): Promise<Website>`
+#### `fetchWebsite(abbreviation: string): Promise<Website | null>`
 
-Parses an OCHRE website tree into a structured Website object.
+Fetch and parse OCHRE website data.
 
 ```typescript
-const website = await parseWebsite(
-  websiteTree,
-  "My Project",
-  "https://example.com",
-);
+const website = await fetchWebsite("guerrilla-television");
 ```
 
-#### `parseMetadata(metadata: OchreMetadata): Metadata`
+#### `fetchResource(uuid: string): Promise<Resource | null>`
 
-Parses OCHRE metadata into a structured Metadata object.
+Fetch and parse OCHRE resource data.
 
 ```typescript
-const metadata = parseMetadata(ochreMetadata);
+const resource = await fetchResource("27adf18a-21ad-442b-b186-0c7f3b8cb2d1");
 ```
 
 ### Types
@@ -58,9 +59,9 @@ const metadata = parseMetadata(ochreMetadata);
 The SDK provides comprehensive TypeScript types for OCHRE data structures. Key types include:
 
 - `Website` - Represents an OCHRE website
-- `Metadata` - Represents OCHRE metadata
 - `Resource` - Represents an OCHRE resource
-- `Document` - Represents an OCHRE document
+- `Set` - Represents an OCHRE set
+- `Document` - Represents an OCHRE MDX document
 - `WebElement` - Represents a web element in an OCHRE website
 - And many more...
 

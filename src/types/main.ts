@@ -1,5 +1,8 @@
 import type { Language } from "iso-639-3";
 
+/**
+ * Represents the core data structure containing item information and metadata
+ */
 export type Data = {
   uuid: string;
   belongsTo: {
@@ -11,11 +14,17 @@ export type Data = {
   item: Tree | Set | Resource | SpatialUnit | Concept;
 };
 
+/**
+ * Basic identification information used across multiple types
+ */
 export type Identification = {
   label: string;
   abbreviation: string;
 };
 
+/**
+ * Metadata information for items including project, publisher and language details
+ */
 export type Metadata = {
   project: {
     identification: Identification & { website: string | null };
@@ -33,6 +42,9 @@ export type Metadata = {
   description: string;
 };
 
+/**
+ * Represents a single item in a context hierarchy with its metadata
+ */
 export type ContextItem = {
   uuid: string;
   publicationDateTime: Date | null;
@@ -40,22 +52,34 @@ export type ContextItem = {
   content: string;
 };
 
+/**
+ * Represents a node in the context tree containing tree, project and spatial unit information
+ */
 export type ContextNode = {
   tree: ContextItem;
   project: ContextItem;
   spatialUnit: Array<ContextItem>;
 };
 
+/**
+ * Contains the full context information including nodes and display path
+ */
 export type Context = {
   nodes: Array<ContextNode>;
   displayPath: string;
 };
 
+/**
+ * License information for content items
+ */
 export type License = {
   content: string;
   url: string;
 };
 
+/**
+ * Represents a person (author, creator, etc.) with their identification and metadata
+ */
 export type Person = {
   uuid: string;
   publicationDateTime: Date | null;
@@ -65,12 +89,18 @@ export type Person = {
   content: string | null;
 };
 
+/**
+ * Represents a note with number, title and content
+ */
 export type Note = {
   number: number;
   title: string | null;
   content: string;
 };
 
+/**
+ * Represents an image with its metadata and content
+ */
 export type Image = {
   publicationDateTime: Date | null;
   identification: Identification | null;
@@ -79,6 +109,9 @@ export type Image = {
   content: string | null;
 };
 
+/**
+ * Represents a link to another item with optional image and bibliographic references
+ */
 export type Link = {
   uuid: string;
   publicationDateTime: Date | null;
@@ -104,6 +137,9 @@ export type Link = {
   bibliographies: Array<Bibliography> | null;
 };
 
+/**
+ * Represents a clickable/interactive area on an image map
+ */
 export type ImageMapArea = {
   uuid: string;
   publicationDateTime: Date | null;
@@ -113,12 +149,18 @@ export type ImageMapArea = {
   coords: Array<number>;
 };
 
+/**
+ * Contains image map areas and dimensions
+ */
 export type ImageMap = {
   area: Array<ImageMapArea>;
   width: number;
   height: number;
 };
 
+/**
+ * Geographic coordinates with optional type and label
+ */
 export type Coordinates = {
   latitude: number;
   longitude: number;
@@ -126,6 +168,9 @@ export type Coordinates = {
   label: string | null;
 };
 
+/**
+ * Represents an observation with notes, links and properties
+ */
 export type Observation = {
   number: number;
   date: Date | null;
@@ -135,6 +180,9 @@ export type Observation = {
   properties: Array<Property>;
 };
 
+/**
+ * Represents an event with date, label and optional agent
+ */
 export type Event = {
   date: Date | null;
   label: string;
@@ -144,23 +192,35 @@ export type Event = {
   } | null;
 };
 
+/**
+ * Represents an interpretation with date and properties
+ */
 export type Interpretation = {
   date: Date | null;
   number: number;
   properties: Array<Property>;
 };
 
+/**
+ * Represents a document with content and footnotes
+ */
 export type Document = {
   content: string;
   footnotes: Array<Footnote>;
 };
 
+/**
+ * Represents a footnote in a document
+ */
 export type Footnote = {
   uuid: string;
   label: string;
   content: string;
 };
 
+/**
+ * Represents a resource item with associated metadata, content and relationships
+ */
 export type Resource = {
   uuid: string;
   variant: "resource";
@@ -188,11 +248,17 @@ export type Resource = {
   resources: Array<NestedResource>;
 };
 
+/**
+ * A nested version of Resource type without certain metadata fields
+ */
 export type NestedResource = Omit<
   Resource,
   "publicationDateTime" | "license" | "copyright"
 >;
 
+/**
+ * Represents a spatial unit with geographic coordinates and observations
+ */
 export type SpatialUnit = {
   uuid: string;
   variant: "spatialUnit";
@@ -209,6 +275,9 @@ export type SpatialUnit = {
   events: Array<Event>;
 };
 
+/**
+ * A nested version of SpatialUnit type without certain metadata fields
+ */
 export type NestedSpatialUnit = Omit<
   SpatialUnit,
   "publicationDateTime" | "license" | "observations" | "events"
@@ -216,6 +285,9 @@ export type NestedSpatialUnit = Omit<
   properties: Array<Property>;
 };
 
+/**
+ * Represents a concept with associated interpretations
+ */
 export type Concept = {
   uuid: string;
   variant: "concept";
@@ -227,8 +299,14 @@ export type Concept = {
   interpretations: Array<Interpretation>;
 };
 
+/**
+ * A nested version of Concept type without certain metadata fields
+ */
 export type NestedConcept = Omit<Concept, "publicationDateTime" | "license">;
 
+/**
+ * Represents a set that can contain resources, spatial units and concepts
+ */
 export type Set = {
   uuid: string;
   variant: "set";
@@ -248,6 +326,9 @@ export type Set = {
   };
 };
 
+/**
+ * Represents a bibliography entry with citation and publication information
+ */
 export type Bibliography = {
   uuid: string;
   publicationDateTime: Date | null;
@@ -280,6 +361,9 @@ export type Bibliography = {
   properties: Array<Property>;
 };
 
+/**
+ * Represents a time period with identification
+ */
 export type Period = {
   uuid: string;
   publicationDateTime: Date | null;
@@ -287,6 +371,9 @@ export type Period = {
   identification: Identification;
 };
 
+/**
+ * Valid types for property values
+ */
 export type PropertyValueType =
   | "string"
   | "number"
@@ -297,6 +384,9 @@ export type PropertyValueType =
   | "time"
   | "IDREF";
 
+/**
+ * Represents a property value with type information
+ */
 export type PropertyValue = {
   content: string;
   type: PropertyValueType;
@@ -305,6 +395,9 @@ export type PropertyValue = {
   publicationDateTime: Date | null;
 };
 
+/**
+ * Represents a property with label, values and nested properties
+ */
 export type Property = {
   label: string;
   values: Array<PropertyValue>;
@@ -312,6 +405,9 @@ export type Property = {
   properties: Array<Property>;
 };
 
+/**
+ * Represents a tree structure containing resources, spatial units and concepts
+ */
 export type Tree = {
   uuid: string;
   variant: "tree";
@@ -330,6 +426,9 @@ export type Tree = {
   properties: Array<Property>;
 };
 
+/**
+ * Represents a website with its properties and elements
+ */
 export type Website = {
   uuid: string;
   publicationDateTime: Date | null;
@@ -345,6 +444,9 @@ export type Website = {
   properties: WebsiteProperties;
 };
 
+/**
+ * Properties for configuring website display and styling
+ */
 export type WebsiteProperties = {
   type:
     | "traditional"
@@ -372,6 +474,9 @@ export type Webpage = {
   webpages: Array<Webpage>;
 };
 
+/**
+ * Properties for configuring webpage display and styling
+ */
 export type WebpageProperties = {
   displayedInHeader: boolean;
   width: "full" | "large" | "narrow" | "default";
@@ -381,6 +486,9 @@ export type WebpageProperties = {
   tailwindClasses: Array<string>;
 };
 
+/**
+ * Base properties for web elements
+ */
 export type WebElement = {
   uuid: string;
   title: string;
@@ -388,6 +496,9 @@ export type WebElement = {
   tailwindClasses: Array<string>;
 } & WebElementComponent;
 
+/**
+ * Union type of all possible web element components
+ */
 export type WebElementComponent =
   | {
       component: "annotated-document";
@@ -438,6 +549,9 @@ export type WebElementComponent =
       content: string;
     };
 
+/**
+ * Represents an image used in web elements
+ */
 export type WebImage = {
   url: string;
   label: string | null;
@@ -445,6 +559,9 @@ export type WebImage = {
   height: number;
 };
 
+/**
+ * Represents a CSS style with label and value
+ */
 export type Style = {
   label: string;
   value: string;
