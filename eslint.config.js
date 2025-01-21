@@ -29,7 +29,7 @@ export default antfu({
     },
   },
   unicorn: {
-    allowArray: true,
+    allRecommended: true,
   },
   rules: {
     "unicorn/filename-case": [
