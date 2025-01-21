@@ -483,7 +483,6 @@ export type WebpageProperties = {
   variant: "default" | "no-background";
   backgroundImageUrl: string | null;
   cssStyles: Array<Style>;
-  tailwindClasses: Array<string>;
 };
 
 /**
@@ -493,7 +492,6 @@ export type WebElement = {
   uuid: string;
   title: string;
   cssStyles: Array<Style>;
-  tailwindClasses: Array<string>;
 } & WebElementComponent;
 
 /**

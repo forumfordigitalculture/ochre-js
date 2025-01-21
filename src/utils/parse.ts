@@ -1869,20 +1869,6 @@ async function parseWebElement(
       )
     : [];
 
-  const tailwindProperties =
-    elementResourceProperties.find(
-      (property) =>
-        property.label === "presentation" &&
-        property.values[0]!.content === "tailwind",
-    )?.properties ?? [];
-
-  const tailwindClasses: Array<string> = [];
-  for (const property of tailwindProperties) {
-    const tailwindPrefix = property.label;
-    const tailwindValue = property.values[0]!.content;
-    tailwindClasses.push(`${tailwindPrefix}-${tailwindValue}`);
-  }
-
   const cssProperties =
     elementResourceProperties.find(
       (property) =>
@@ -1900,7 +1886,6 @@ async function parseWebElement(
     uuid: elementResource.uuid,
     title: identification.label,
     cssStyles,
-    tailwindClasses,
     ...properties,
   };
 }
@@ -2020,20 +2005,6 @@ async function parseWebpage(
     }
   }
 
-  const tailwindStyleSubProperties = webpageProperties.find(
-    (property) =>
-      property.label === "presentation" &&
-      property.values[0]!.content === "tailwind",
-  )?.properties;
-  const tailwindClasses: Array<string> = [];
-  if (tailwindStyleSubProperties) {
-    for (const property of tailwindStyleSubProperties) {
-      const tailwindPrefix = property.label;
-      const tailwindValue = property.values[0]!.content;
-      tailwindClasses.push(`${tailwindPrefix}-${tailwindValue}`);
-    }
-  }
-
   return {
     title: identification.label,
     slug,
@@ -2047,7 +2018,6 @@ async function parseWebpage(
           `https://ochre.lib.uchicago.edu/ochre?uuid=${imageLink.uuid}&preview`
         : null,
       cssStyles,
-      tailwindClasses,
     },
     webpages,
   };
