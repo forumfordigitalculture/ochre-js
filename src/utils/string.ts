@@ -85,7 +85,7 @@ function getStringItemByLanguage(
   language: string,
 ): OchreStringItem | null {
   const stringItemToFind = content.find((item) => item.lang === language);
-  return stringItemToFind || null;
+  return stringItemToFind ?? null;
 }
 
 /**

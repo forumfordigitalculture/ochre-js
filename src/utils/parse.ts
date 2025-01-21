@@ -2220,9 +2220,7 @@ export async function parseWebsite(
             property.values[0]?.content === "element",
         )?.properties ?? [],
       );
-      if (element) {
-        sidebarElements.push(element);
-      }
+      sidebarElements.push(element);
     }
   }
 
