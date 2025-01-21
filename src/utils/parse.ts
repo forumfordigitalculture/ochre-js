@@ -1461,12 +1461,29 @@ async function parseWebElementProperties(
       break;
     }
     case "image-gallery": {
+      const galleryLink = links.find((link) => link.variant === "tree");
+      if (!galleryLink) {
+        throw new Error(
+          `Image gallery link not found for the following component: “${componentName}”`,
+        );
+      }
+
+      properties.galleryId = galleryLink.uuid;
+
       break;
     }
     case "interactive-chapter-table": {
       break;
     }
     case "item-gallery": {
+      const galleryLink = links.find((link) => link.variant === "tree");
+      if (!galleryLink) {
+        throw new Error(
+          `Item gallery link not found for the following component: “${componentName}”`,
+        );
+      }
+
+      properties.galleryId = galleryLink.uuid;
       break;
     }
     case "menu": {

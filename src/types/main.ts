@@ -409,9 +409,9 @@ export type WebElementComponent =
     }
   | { component: "iiif-viewer"; manifestUrl: string }
   | { component: "image"; image: WebImage }
-  | { component: "image-gallery" }
+  | { component: "image-gallery"; galleryId: string }
   | { component: "interactive-chapter-table" }
-  | { component: "item-gallery" }
+  | { component: "item-gallery"; galleryId: string }
   | { component: "menu" }
   | { component: "menu-item" }
   | { component: "n-columns"; columns: Array<WebElement> }
