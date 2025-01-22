@@ -140,6 +140,7 @@ export type OchreTree = {
   date?: string; // YYYY-MM-DD
   creators?: { creator: OchrePerson | Array<OchrePerson> };
   items:
+    | string
     | {
         resource: OchreResource | Array<OchreResource>;
       }
@@ -163,6 +164,7 @@ export type OchreSet = {
   description?: OchreStringContent;
   creators?: { creator: OchrePerson | Array<OchrePerson> };
   items:
+    | string
     | { resource: OchreResource | Array<OchreResource> }
     | { spatialUnit: OchreSpatialUnit | Array<OchreSpatialUnit> }
     | { concept: OchreConcept | Array<OchreConcept> };

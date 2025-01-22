@@ -984,21 +984,21 @@ export function parseTree(tree: OchreTree): Tree | null {
   let resources: Array<Resource> = [];
   let spatialUnits: Array<SpatialUnit> = [];
   let concepts: Array<Concept> = [];
-  if ("resource" in tree.items) {
+  if (typeof tree.items !== "string" && "resource" in tree.items) {
     resources = parseResources(
       Array.isArray(tree.items.resource) ?
         tree.items.resource
       : [tree.items.resource],
     ) as Array<Resource>;
   }
-  if ("spatialUnit" in tree.items) {
+  if (typeof tree.items !== "string" && "spatialUnit" in tree.items) {
     spatialUnits = parseSpatialUnits(
       Array.isArray(tree.items.spatialUnit) ?
         tree.items.spatialUnit
       : [tree.items.spatialUnit],
     ) as Array<SpatialUnit>;
   }
-  if ("concept" in tree.items) {
+  if (typeof tree.items !== "string" && "concept" in tree.items) {
     concepts = parseConcepts(
       Array.isArray(tree.items.concept) ?
         tree.items.concept
@@ -1045,7 +1045,7 @@ export function parseSet(set: OchreSet): Set {
   let spatialUnits: Array<NestedSpatialUnit> = [];
   let concepts: Array<NestedConcept> = [];
 
-  if ("resource" in set.items) {
+  if (typeof set.items !== "string" && "resource" in set.items) {
     resources = parseResources(
       Array.isArray(set.items.resource) ?
         set.items.resource
@@ -1053,7 +1053,7 @@ export function parseSet(set: OchreSet): Set {
       true,
     ) as Array<NestedResource>;
   }
-  if ("spatialUnit" in set.items) {
+  if (typeof set.items !== "string" && "spatialUnit" in set.items) {
     spatialUnits = parseSpatialUnits(
       Array.isArray(set.items.spatialUnit) ?
         set.items.spatialUnit
@@ -1061,7 +1061,7 @@ export function parseSet(set: OchreSet): Set {
       true,
     );
   }
-  if ("concept" in set.items) {
+  if (typeof set.items !== "string" && "concept" in set.items) {
     concepts = parseConcepts(
       Array.isArray(set.items.concept) ?
         set.items.concept
@@ -2172,7 +2172,10 @@ export async function parseWebsite(
     : [websiteTree.properties.property],
   );
 
-  if (!("resource" in websiteTree.items)) {
+  if (
+    typeof websiteTree.items === "string" ||
+    !("resource" in websiteTree.items)
+  ) {
     throw new Error("Website pages not found");
   }
 
