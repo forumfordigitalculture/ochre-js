@@ -509,7 +509,7 @@ export type WebElementComponent =
       layout: "long" | "short";
     }
   | { component: "blog"; blogId: string }
-  | { component: "button"; href: string }
+  | { component: "button"; href: string; isExternal: boolean }
   | {
       component: "collection";
       variant: "full" | "highlights";

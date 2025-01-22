@@ -1609,6 +1609,7 @@ async function parseWebElementProperties(
       break;
     }
     case "button": {
+      let isExternal = false;
       let href = getPropertyValueByLabel(
         componentProperty.properties,
         "navigate-to",
@@ -1619,10 +1620,13 @@ async function parseWebElementProperties(
           throw new Error(
             `Properties “navigate-to” or “link-to” not found for the following component: “${componentName}”`,
           );
+        } else {
+          isExternal = true;
         }
       }
 
       properties.href = href;
+      properties.isExternal = isExternal;
       break;
     }
     case "collection": {
