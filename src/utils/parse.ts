@@ -1627,6 +1627,9 @@ async function parseWebElementProperties(
 
       properties.href = href;
       properties.isExternal = isExternal;
+      properties.label = parseStringContent(
+        elementResource.identification.label,
+      );
       break;
     }
     case "collection": {

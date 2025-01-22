@@ -1,6 +1,6 @@
 {
   "name": "@uchicago/ochre",
-  "version": "0.1.16",
+  "version": "0.1.17",
   "description": "Node.js library for working with OCHRE (Online Cultural and Historical Research Environment) data",
   "keywords": [
     "ochre",
