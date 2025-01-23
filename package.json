@@ -1,6 +1,6 @@
 {
   "name": "@uchicago/ochre",
-  "version": "0.1.18",
+  "version": "0.1.19",
   "description": "Node.js library for working with OCHRE (Online Cultural and Historical Research Environment) data",
   "keywords": [
     "ochre",
@@ -43,13 +43,13 @@
     "@antfu/eslint-config": "^3.16.0",
     "@arethetypeswrong/cli": "^0.17.3",
     "@changesets/cli": "^2.27.11",
-    "@types/node": "^22.10.7",
+    "@types/node": "^22.10.10",
     "eslint": "^9.18.0",
     "eslint-plugin-unused-imports": "^4.1.4",
     "prettier": "^3.4.2",
     "tsup": "^8.3.5",
     "typescript": "^5.7.3",
-    "vitest": "^3.0.3"
+    "vitest": "^3.0.4"
   },
   "scripts": {
     "build": "tsup",

@@ -323,6 +323,7 @@ export type Set = {
     resources: Array<NestedResource>;
     spatialUnits: Array<NestedSpatialUnit>;
     concepts: Array<NestedConcept>;
+    periods: Array<Period>;
   };
 };
 
@@ -367,8 +368,10 @@ export type Bibliography = {
 export type Period = {
   uuid: string;
   publicationDateTime: Date | null;
-  type: string;
+  type: string | null;
+  number: number | null;
   identification: Identification;
+  description: string | null;
 };
 
 /**
@@ -422,6 +425,7 @@ export type Tree = {
     resources: Array<Resource>;
     spatialUnits: Array<SpatialUnit>;
     concepts: Array<Concept>;
+    periods: Array<Period>;
   };
   properties: Array<Property>;
 };

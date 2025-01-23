@@ -809,8 +809,11 @@ export function parsePeriod(period: OchrePeriod): Period {
       period.publicationDateTime != null ?
         new Date(period.publicationDateTime)
       : null,
-    type: period.type,
+    type: period.type ?? null,
+    number: period.n ?? null,
     identification: parseIdentification(period.identification),
+    description:
+      period.description ? parseStringContent(period.description) : null,
   };
 }
 
@@ -984,6 +987,7 @@ export function parseTree(tree: OchreTree): Tree | null {
   let resources: Array<Resource> = [];
   let spatialUnits: Array<SpatialUnit> = [];
   let concepts: Array<Concept> = [];
+  let periods: Array<Period> = [];
   if (typeof tree.items !== "string" && "resource" in tree.items) {
     resources = parseResources(
       Array.isArray(tree.items.resource) ?
@@ -1005,6 +1009,13 @@ export function parseTree(tree: OchreTree): Tree | null {
       : [tree.items.concept],
     ) as Array<Concept>;
   }
+  if (typeof tree.items !== "string" && "period" in tree.items) {
+    periods = parsePeriods(
+      Array.isArray(tree.items.period) ?
+        tree.items.period
+      : [tree.items.period],
+    );
+  }
 
   const returnTree: Tree = {
     uuid: tree.uuid,
@@ -1020,6 +1031,7 @@ export function parseTree(tree: OchreTree): Tree | null {
       resources,
       spatialUnits,
       concepts,
+      periods,
     },
     properties:
       tree.properties ?
@@ -1044,6 +1056,7 @@ export function parseSet(set: OchreSet): Set {
   let resources: Array<NestedResource> = [];
   let spatialUnits: Array<NestedSpatialUnit> = [];
   let concepts: Array<NestedConcept> = [];
+  let periods: Array<Period> = [];
 
   if (typeof set.items !== "string" && "resource" in set.items) {
     resources = parseResources(
@@ -1068,6 +1081,11 @@ export function parseSet(set: OchreSet): Set {
       : [set.items.concept],
       true,
     ) as Array<NestedConcept>;
+  }
+  if (typeof set.items !== "string" && "period" in set.items) {
+    periods = parsePeriods(
+      Array.isArray(set.items.period) ? set.items.period : [set.items.period],
+    );
   }
 
   return {
@@ -1094,6 +1112,7 @@ export function parseSet(set: OchreSet): Set {
       resources,
       spatialUnits,
       concepts,
+      periods,
     },
   };
 }

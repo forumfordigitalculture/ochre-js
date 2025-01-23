@@ -145,7 +145,8 @@ export type OchreTree = {
         resource: OchreResource | Array<OchreResource>;
       }
     | { spatialUnit: OchreSpatialUnit | Array<OchreSpatialUnit> }
-    | { concept: OchreConcept | Array<OchreConcept> };
+    | { concept: OchreConcept | Array<OchreConcept> }
+    | { period: OchrePeriod | Array<OchrePeriod> };
   properties?: { property: OchreProperty | Array<OchreProperty> };
 };
 
@@ -167,7 +168,8 @@ export type OchreSet = {
     | string
     | { resource: OchreResource | Array<OchreResource> }
     | { spatialUnit: OchreSpatialUnit | Array<OchreSpatialUnit> }
-    | { concept: OchreConcept | Array<OchreConcept> };
+    | { concept: OchreConcept | Array<OchreConcept> }
+    | { period: OchrePeriod | Array<OchrePeriod> };
 };
 
 /**
@@ -435,8 +437,10 @@ export type OchreNote =
 export type OchrePeriod = {
   uuid: string;
   publicationDateTime?: string; // YYYY-MM-DDThh:mm:ssZ
-  type: string;
+  type?: string;
+  n?: number;
   identification: OchreIdentification;
+  description?: OchreStringContent;
 };
 
 /**
